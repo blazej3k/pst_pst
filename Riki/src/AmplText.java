@@ -80,15 +80,39 @@ public class AmplText {
 					linia = linia.replaceAll("\n", "");
 					dodajElement(linia, false);
 					// System.out.println("KrawêdŸ");
-				} else if (linia.contains("DEMANDS")) {
+				} else if (linia.contains("DEMANDS"))
 					odczytajDemandy(linia);
-				} else if (linia.contains("param transit_nodes_limit")) {
-
-				} else
+				else if (linia.contains("param transit_nodes_limit"))
+					odczytajTransitLimit(linia);
+				else if (linia.contains("demand_val"))
+					odczytajWartosciDemandow(linia);
+				else if (linia.contains("unit_cost1"))
+					odczytajWartosciKrawedzi(linia);
+				else
 					break;
 			}
 		}
 		odczyt.close();
+
+	}
+
+	private void odczytajWartosciKrawedzi(String linia) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void odczytajWartosciDemandow(String linia) {
+		linia = linia.replaceAll(";", "");
+		String[] lista = linia.split(":=")[1].split(" ");
+		for (String lis : lista)
+			System.out.println(lis.trim());
+	}
+
+	private void odczytajTransitLimit(String linia) {
+		linia = linia.replaceAll(";", "");
+		String[] tab = linia.split("=:");
+		transitsLimit = Integer.parseInt(tab[1].trim());
+
 	}
 
 	private void odczytajDemandy(String linia) {
@@ -102,7 +126,7 @@ public class AmplText {
 			demand[0] = demand[0].trim();
 			String v1 = demand[0].substring(1, demand[0].length());
 			String v2 = demand[1].trim();
-			
+
 			Demand d = new Demand(v1, v2);
 			demands.add(d);
 		}
@@ -198,8 +222,9 @@ public class AmplText {
 
 			for (int j = 0; j < sciezkiDemandu.size(); j++) {
 				String sciezka = sciezkiDemandu.get(j);
-				linia = "set PATHS[" + demands.get(i).getStartVertex() + ", " + demands.get(i).getEndVertex()
-						+ ", " + Integer.toString(j + 1) + "] := ";
+				linia = "set PATHS[" + demands.get(i).getStartVertex() + ", "
+						+ demands.get(i).getEndVertex() + ", "
+						+ Integer.toString(j + 1) + "] := ";
 				sciezka = sciezka.replaceAll("\\[", "").replaceAll("\\]", "")
 						.replaceAll(", ", "").replaceAll(" :", ",");
 
@@ -372,8 +397,5 @@ public class AmplText {
 	public void setTransitsLimit(int transitsLimit) {
 		this.transitsLimit = transitsLimit;
 	}
-	
-	
-	
 
 }
