@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
@@ -12,8 +14,11 @@ public class Rob {
 	private static int numOfDemands;
 	private static int transitsLimit;
 	private static int numOfPaths;
-	private static String sciezkaZapisu;
-	private static String sciezkaOdczytu;
+	private static String sciezka = "res/";
+	private static String nazwaPlikuOdczytu = "ampl.dat";
+	private static String nazwaPlikuZapisu = "ampl.dat";
+	private static String sciezkaOdczytu = sciezka+nazwaPlikuOdczytu;
+	private static String sciezkaZapisu = sciezka+nazwaPlikuZapisu;
 
 	public static void main(String[] args) {
 		String s = null;
@@ -46,9 +51,9 @@ public class Rob {
 				percent = 0.3;
 				numOfDemands = 3;
 				transitsLimit = 5;
-				sciezkaZapisu = "C:\\Users\\Teodor\\Desktop\\ampl.dat";
+//				sciezkaZapisu = "C:\\Users\\Teodor\\Desktop\\ampl.dat";
 
-				return;
+//				return;
 			}
 			rob.nowyGraf();
 			break;
@@ -75,9 +80,9 @@ public class Rob {
 			try {
 				sciezkaOdczytu = args[1];
 			} catch (Exception e) {
-				sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";
+//				sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";
 			}
-			rob.heureza();
+			rob.heurystyka();
 			break;
 		default:
 			System.out
@@ -122,32 +127,64 @@ public class Rob {
 		ampl.zapis(sciezki);
 	}
 
-	public void heureza() {
+	private void heurystyka() {
 		AmplText ampl = new AmplText(sciezkaOdczytu, null);
 		ampl.odczytajPlik();
 
 		System.out.println("Tworze graf.");
 		Graf graf = new Graf();
-		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(
-				ampl.getWierzcholki(), ampl.getKrawedzie());
+		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(ampl.getWierzcholki(), ampl.getKrawedzie());
 		String[][] demands = ampl.getDemands();
+		System.out.println("Iloœæ demandów: "+demands.length);
 		
-		//inicjalne rozwiazanie
-		List<List<String>> sciezki = new ArrayList<>();
+		
+		int temperatura = 10;
+		int count=0;
+		List<List<String>> rozwiazania = rozwiazanieInicjalne(demands, graf, simpleGraph);
+		String[] dem = demands[0];											// wybieram losowo demand
+		dem[2] = "50";														// wpisuje wielkosc demandu, TODO odczyt z pliku
+		
+		int wielkoscDem = Integer.parseInt(dem[2]);
+		String nowaY="";
+		
+		while(count < 20) {													// kryterium stopu
+			nowaY = graf.znajdzLosowaSciezke(dem[0], dem[1], 10, simpleGraph);		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
+
+			
+			
+			count++;
+		}
+	}
+
+	private int funkcjaKosztu() {
+		int koszt=0;
+		
+		
+		
+		return koszt;
+	}
+	
+	public List<List<String>> rozwiazanieInicjalne(String[][] demands, Graf graf, SimpleGraph<String, DefaultEdge> simpleGraph) {
+		List<List<String>> rozwiazania = new LinkedList<List<String>>();
+		
+		for (String[] d: demands)
+			for (String s: d)
+				System.out.println("DEMAND: "+d+" zawartosc: "+s);
+
 		try {
-			for (String[] d : demands)
-				sciezki.add(graf
-						.getSciezki(d[0], d[1], 1, simpleGraph));
+			for (String[] d : demands) {
+				//rozwi¹zanie pocz¹tkowe - tu najkrótsza œcie¿ka, nie najtañsza
+				rozwiazania.add(graf.getSciezki(d[0], d[1], 1, simpleGraph));
+				
+				return rozwiazania;
+			}
 		} catch (NullPointerException e) {
 			System.out
-					.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
-			return;
+			.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
+			return null;
 		} 
-		//trzeba wybrac losowo jeden demand i wybrac dla niego sciezke
-		for (String[] d : demands) {
-			graf.znajdzLosowaSciezke(d[0], d[1], 10, simpleGraph);
-		}
-
+		
+		return null;
 	}
 
 }

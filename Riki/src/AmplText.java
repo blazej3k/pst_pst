@@ -91,7 +91,7 @@ public class AmplText {
 		linia = linia.replaceAll(";", "");
 		String[] lista = linia.split(":=")[1].split("\\)");
 
-		demands = new String[lista.length][2];
+		demands = new String[lista.length][3];
 
 		for (int i = 0; i < lista.length; i++) {
 			String[] demand = lista[i].split(",");
@@ -100,6 +100,8 @@ public class AmplText {
 			String v2 = demand[1].trim();
 			demands[i][0] = v1;
 			demands[i][1] = v2;
+			demands[i][2] = "";	
+			// TODO wpisuje pusta wartosc i potem sobie ja modyfikuje w heurystyce, zrob tu zeby sie wczytywalo
 		}
 	}
 
