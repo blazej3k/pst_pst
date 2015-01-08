@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
@@ -102,14 +103,17 @@ public class Graf {
 
 		for (GraphPath<String, DefaultEdge> lst : sciezkiOdDo) {
 			System.out.println(lst.getEdgeList().toString());
-			sciezki.add(lst.getEdgeList().toString());
+			
+			for (DefaultEdge e: lst.getEdgeList()) 
+				sciezki.add(e.toString());			// troche wygodniejsza lista i tak dupa.
+			
+//			sciezki.add(lst.getEdgeList().toString());
 		}
 
 		return sciezki;
 	}
 
-	public String znajdzLosowaSciezke(String startVertex, String endVertex,
-			int t, SimpleGraph<String, DefaultEdge> graf) {
+	public List<String> znajdzLosowaSciezke(String startVertex, String endVertex, int t, SimpleGraph<String, DefaultEdge> graf) {
 
 		List<String> visitedNodes = new ArrayList<>();
 		Stack<String> stack = new Stack<>();
@@ -118,38 +122,38 @@ public class Graf {
 		stack.push(startVertex);
 
 		
-		System.out.println("\n" + startVertex + "   " + endVertex);
+//		System.out.println("\n" + startVertex + "   " + endVertex);
 		String currentNode = startVertex;
 
 		Iterator<String> iter = stack.iterator();
-		while (iter.hasNext())
-			System.out.println("stos: " + iter.next());
+/*		while (iter.hasNext())
+			System.out.println("stos: " + iter.next());*/
 
 		while (visitedNodes.size() <= graf.vertexSet().size()
 				&& !currentNode.equals(endVertex)) {
 
-			System.out.println("current node " + currentNode);
+//			System.out.println("current node " + currentNode);
 			List<String> notVisitedNeighbors = znajdzNieodwiedzonychSasiadow(
 					graf, currentNode, visitedNodes);
 			if (notVisitedNeighbors.size() > 0) {
 				String neighborNode = wybierzLosowegoSasiada(notVisitedNeighbors);
-				System.out.println("neighbor node " + neighborNode);
+//				System.out.println("neighbor node " + neighborNode);
 				visitedNodes.add(neighborNode);
 				stack.push(neighborNode);
 				currentNode = neighborNode;
 
 			} else {
-				System.out.println("nie ma sasiadow");
+//				System.out.println("nie ma sasiadow");
 				stack.pop();
 				currentNode = stack.peek();
 			}
 
 			iter = stack.iterator();
-			while (iter.hasNext())
-				System.out.println("stos: " + iter.next());
+/*			while (iter.hasNext())
+				System.out.println("stos: " + iter.next());*/
 		}
 		
-		System.out.println("Skonczylem \n");
+//		System.out.println("Skonczylem \n");
 
 		if (!currentNode.equals(endVertex))
 		{
@@ -159,13 +163,13 @@ public class Graf {
 		}
 		
 		iter = stack.iterator();
-		String sciezka ="";
+		
+		List<String> sciezka = new LinkedList<String>();
 		while (iter.hasNext())
-			sciezka +=  iter.next() + " ";
+			sciezka.add(iter.next());
 		
-		System.out.println("sciezka: " + sciezka);
+//		System.out.println("sciezka: " + sciezka);
 		return sciezka;	
-		
 	}
 
 	public String wybierzLosowegoSasiada(List<String> sasiedzi) {
@@ -180,9 +184,9 @@ public class Graf {
 		sasiedzi = Graphs.neighborListOf(graf, vertex);
 		sasiedzi.removeAll(visitedNodes);
 
-		System.out.println("nieodwiedzeni sasiedzi");
+/*		System.out.println("nieodwiedzeni sasiedzi");
 		for (String s : sasiedzi)
-			System.out.println(s);
+			System.out.println(s);*/
 		return sasiedzi;
 	}
 

@@ -6,6 +6,7 @@ public class Edge {
 	private String endVertex;
 	private float unitCost;
 	private int installationCost;
+	private Boolean czyZainstalowany;
 	
 	
 	
@@ -16,6 +17,14 @@ public class Edge {
 		this.endVertex = endVertex;
 		this.unitCost = unitCost;
 		this.installationCost = installationCost;
+		
+		czyZainstalowany=false;				// domyslnie zadna nie jest zainstalowana
+	}
+	public Boolean getCzyZainstalowany() {
+		return czyZainstalowany;
+	}
+	public void setCzyZainstalowany(Boolean czyZainstalowany) {
+		this.czyZainstalowany = czyZainstalowany;
 	}
 	public String getStartVertex() {
 		return startVertex;
