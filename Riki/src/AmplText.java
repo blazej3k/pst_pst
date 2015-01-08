@@ -80,8 +80,8 @@ public class AmplText {
 					linia = linia.replaceAll("\n", "");
 					dodajElement(linia, false);
 					// System.out.println("KrawêdŸ");
-				} else if (linia.contains("DEMANDS"))
-					odczytajDemandy(linia);
+				} /*else if (linia.contains("DEMANDS"))
+					odczytajDemandy(linia);*/
 				else if (linia.contains("param transit_nodes_limit"))
 					odczytajTransitLimit(linia);
 				else if (linia.contains("demand_val"))
@@ -97,25 +97,48 @@ public class AmplText {
 	}
 
 	private void odczytajWartosciKrawedzi(String linia) {
-		// TODO Auto-generated method stub
+		linia = linia.replaceAll(";", "");
+		linia = linia.replaceAll("\t", " ");
+		linia = linia.replaceAll("\n", " ");
+		String[] lista = linia.split(":=")[1].trim().split(" +");
+		edges = new ArrayList<>();
+
+		for (int i=0; i<lista.length; i=i+4)
+		{
+			String v1 = lista[i];
+			String v2 = lista[i+1];
+			float unit = Float.parseFloat(lista[i+2]);
+			int inst = Integer.parseInt(lista[i+3]);
+			edges.add(new Edge(v1, v2, unit, inst));
+		}
 
 	}
 
 	private void odczytajWartosciDemandow(String linia) {
 		linia = linia.replaceAll(";", "");
-		String[] lista = linia.split(":=")[1].split(" ");
-		for (String lis : lista)
-			System.out.println(lis.trim());
+		linia = linia.replaceAll("\t", " ");
+		linia = linia.replaceAll("\n", " ");
+		String[] lista = linia.split(":=")[1].trim().split(" +");
+		demands = new ArrayList<>();
+		
+		for (int i=0; i<lista.length; i=i+4)
+		{
+			String v1 = lista[i];
+			String v2 = lista[i+1];
+			int val = Integer.parseInt(lista[i+2]);
+			int profit = Integer.parseInt(lista[i+3]);
+			demands.add(new Demand(v1, v2, val, profit));
+		}
 	}
 
 	private void odczytajTransitLimit(String linia) {
 		linia = linia.replaceAll(";", "");
-		String[] tab = linia.split("=:");
+		String[] tab = linia.split(":=");
 		transitsLimit = Integer.parseInt(tab[1].trim());
 
 	}
 
-	private void odczytajDemandy(String linia) {
+	/*private void odczytajDemandy(String linia) {
 		linia = linia.replaceAll(";", "");
 		String[] lista = linia.split(":=")[1].split("\\)");
 
@@ -130,7 +153,7 @@ public class AmplText {
 			Demand d = new Demand(v1, v2);
 			demands.add(d);
 		}
-	}
+	}*/
 
 	private void dodajElement(String linia, Boolean tryb) {
 		List<String> lista = null;
