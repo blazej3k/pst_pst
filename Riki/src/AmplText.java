@@ -16,7 +16,9 @@ public class AmplText {
 	private List<String> wierzcholki;
 	private List<String> krawedzie;
 
-	private String[][] demands;
+	private List<Demand> demands;
+	private List<Edge> edges;
+	private int transitsLimit;
 
 	private String sciezkaOdczytu;
 	private String sciezkaZapisu;
@@ -78,30 +80,55 @@ public class AmplText {
 					linia = linia.replaceAll("\n", "");
 					dodajElement(linia, false);
 					// System.out.println("KrawêdŸ");
-				} else if (linia.contains("DEMANDS")) {
+				} else if (linia.contains("DEMANDS"))
 					odczytajDemandy(linia);
-				} else
+				else if (linia.contains("param transit_nodes_limit"))
+					odczytajTransitLimit(linia);
+				else if (linia.contains("demand_val"))
+					odczytajWartosciDemandow(linia);
+				else if (linia.contains("unit_cost1"))
+					odczytajWartosciKrawedzi(linia);
+				else
 					break;
 			}
 		}
 		odczyt.close();
+
+	}
+
+	private void odczytajWartosciKrawedzi(String linia) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void odczytajWartosciDemandow(String linia) {
+		linia = linia.replaceAll(";", "");
+		String[] lista = linia.split(":=")[1].split(" ");
+		for (String lis : lista)
+			System.out.println(lis.trim());
+	}
+
+	private void odczytajTransitLimit(String linia) {
+		linia = linia.replaceAll(";", "");
+		String[] tab = linia.split("=:");
+		transitsLimit = Integer.parseInt(tab[1].trim());
+
 	}
 
 	private void odczytajDemandy(String linia) {
 		linia = linia.replaceAll(";", "");
 		String[] lista = linia.split(":=")[1].split("\\)");
 
-		demands = new String[lista.length][3];
+		demands = new ArrayList<>();
 
 		for (int i = 0; i < lista.length; i++) {
 			String[] demand = lista[i].split(",");
 			demand[0] = demand[0].trim();
 			String v1 = demand[0].substring(1, demand[0].length());
 			String v2 = demand[1].trim();
-			demands[i][0] = v1;
-			demands[i][1] = v2;
-			demands[i][2] = "";	
-			// TODO wpisuje pusta wartosc i potem sobie ja modyfikuje w heurystyce, zrob tu zeby sie wczytywalo
+
+			Demand d = new Demand(v1, v2);
+			demands.add(d);
 		}
 	}
 
@@ -176,7 +203,9 @@ public class AmplText {
 
 						linia = "param: 		demand_val 	demand_profit	number_of_paths :=";
 						for (int i = 0; i < sciezki.size(); i++)
-							linia += "\n" + wiersze[j + 1 + i].replace(";", "").trim() + "			"
+							linia += "\n"
+									+ wiersze[j + 1 + i].replace(";", "")
+											.trim() + "			"
 									+ sciezki.get(i).size();
 						linia += ";";
 					}
@@ -193,8 +222,9 @@ public class AmplText {
 
 			for (int j = 0; j < sciezkiDemandu.size(); j++) {
 				String sciezka = sciezkiDemandu.get(j);
-				linia = "set PATHS[" + demands[i][0] + ", " + demands[i][1]
-						+ ", " + Integer.toString(j + 1) + "] := ";
+				linia = "set PATHS[" + demands.get(i).getStartVertex() + ", "
+						+ demands.get(i).getEndVertex() + ", "
+						+ Integer.toString(j + 1) + "] := ";
 				sciezka = sciezka.replaceAll("\\[", "").replaceAll("\\]", "")
 						.replaceAll(", ", "").replaceAll(" :", ",");
 
@@ -344,12 +374,28 @@ public class AmplText {
 		this.krawedzie = krawedzie;
 	}
 
-	public String[][] getDemands() {
+	public List<Demand> getDemands() {
 		return demands;
 	}
 
-	public void setDemands(String[][] demands) {
+	public void setDemands(List<Demand> demands) {
 		this.demands = demands;
+	}
+
+	public List<Edge> getEdges() {
+		return edges;
+	}
+
+	public void setEdges(List<Edge> edges) {
+		this.edges = edges;
+	}
+
+	public int getTransitsLimit() {
+		return transitsLimit;
+	}
+
+	public void setTransitsLimit(int transitsLimit) {
+		this.transitsLimit = transitsLimit;
 	}
 
 }
