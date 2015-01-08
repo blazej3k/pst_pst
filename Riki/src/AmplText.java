@@ -16,7 +16,9 @@ public class AmplText {
 	private List<String> wierzcholki;
 	private List<String> krawedzie;
 
-	private String[][] demands;
+	private List<Demand> demands;
+	private List<Edge> edges;
+	private int transitsLimit;
 
 	private String sciezkaOdczytu;
 	private String sciezkaZapisu;
@@ -80,6 +82,8 @@ public class AmplText {
 					// System.out.println("KrawêdŸ");
 				} else if (linia.contains("DEMANDS")) {
 					odczytajDemandy(linia);
+				} else if (linia.contains("param transit_nodes_limit")) {
+
 				} else
 					break;
 			}
@@ -91,15 +95,16 @@ public class AmplText {
 		linia = linia.replaceAll(";", "");
 		String[] lista = linia.split(":=")[1].split("\\)");
 
-		demands = new String[lista.length][2];
+		demands = new ArrayList<>();
 
 		for (int i = 0; i < lista.length; i++) {
 			String[] demand = lista[i].split(",");
 			demand[0] = demand[0].trim();
 			String v1 = demand[0].substring(1, demand[0].length());
 			String v2 = demand[1].trim();
-			demands[i][0] = v1;
-			demands[i][1] = v2;
+			
+			Demand d = new Demand(v1, v2);
+			demands.add(d);
 		}
 	}
 
@@ -174,7 +179,9 @@ public class AmplText {
 
 						linia = "param: 		demand_val 	demand_profit	number_of_paths :=";
 						for (int i = 0; i < sciezki.size(); i++)
-							linia += "\n" + wiersze[j + 1 + i].replace(";", "").trim() + "			"
+							linia += "\n"
+									+ wiersze[j + 1 + i].replace(";", "")
+											.trim() + "			"
 									+ sciezki.get(i).size();
 						linia += ";";
 					}
@@ -191,7 +198,7 @@ public class AmplText {
 
 			for (int j = 0; j < sciezkiDemandu.size(); j++) {
 				String sciezka = sciezkiDemandu.get(j);
-				linia = "set PATHS[" + demands[i][0] + ", " + demands[i][1]
+				linia = "set PATHS[" + demands.get(i).getStartVertex() + ", " + demands.get(i).getEndVertex()
 						+ ", " + Integer.toString(j + 1) + "] := ";
 				sciezka = sciezka.replaceAll("\\[", "").replaceAll("\\]", "")
 						.replaceAll(", ", "").replaceAll(" :", ",");
@@ -342,12 +349,31 @@ public class AmplText {
 		this.krawedzie = krawedzie;
 	}
 
-	public String[][] getDemands() {
+	public List<Demand> getDemands() {
 		return demands;
 	}
 
-	public void setDemands(String[][] demands) {
+	public void setDemands(List<Demand> demands) {
 		this.demands = demands;
 	}
+
+	public List<Edge> getEdges() {
+		return edges;
+	}
+
+	public void setEdges(List<Edge> edges) {
+		this.edges = edges;
+	}
+
+	public int getTransitsLimit() {
+		return transitsLimit;
+	}
+
+	public void setTransitsLimit(int transitsLimit) {
+		this.transitsLimit = transitsLimit;
+	}
+	
+	
+	
 
 }

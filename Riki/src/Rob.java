@@ -105,14 +105,14 @@ public class Rob {
 		Graf graf = new Graf();
 		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(
 				ampl.getWierzcholki(), ampl.getKrawedzie());
-		String[][] demands = ampl.getDemands();
+		List<Demand> demands = ampl.getDemands();
 
 		List<List<String>> sciezki = new ArrayList<>();
 
 		try {
-			for (String[] d : demands)
+			for (Demand d : demands)
 				sciezki.add(graf
-						.getSciezki(d[0], d[1], numOfPaths, simpleGraph));
+						.getSciezki(d.getStartVertex(), d.getEndVertex(), numOfPaths, simpleGraph));
 		} catch (NullPointerException e) {
 			System.out
 					.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
@@ -130,22 +130,22 @@ public class Rob {
 		Graf graf = new Graf();
 		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(
 				ampl.getWierzcholki(), ampl.getKrawedzie());
-		String[][] demands = ampl.getDemands();
+		List<Demand> demands = ampl.getDemands();
 		
 		//inicjalne rozwiazanie
 		List<List<String>> sciezki = new ArrayList<>();
 		try {
-			for (String[] d : demands)
+			for (Demand d : demands)
 				sciezki.add(graf
-						.getSciezki(d[0], d[1], 1, simpleGraph));
+						.getSciezki(d.getStartVertex(), d.getEndVertex(), 1, simpleGraph));
 		} catch (NullPointerException e) {
 			System.out
 					.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
 			return;
 		} 
 		//trzeba wybrac losowo jeden demand i wybrac dla niego sciezke
-		for (String[] d : demands) {
-			graf.znajdzLosowaSciezke(d[0], d[1], 10, simpleGraph);
+		for (Demand d : demands) {
+			graf.znajdzLosowaSciezke(d.getStartVertex(), d.getEndVertex(), 10, simpleGraph);
 		}
 
 	}
