@@ -1,7 +1,11 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.Stack;
 
 import org.jgrapht.GraphPath;
+import org.jgrapht.Graphs;
 import org.jgrapht.VertexFactory;
 import org.jgrapht.alg.KShortestPaths;
 import org.jgrapht.generate.RandomGraphGenerator;
@@ -9,6 +13,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Graf {
+
+	private Random randomGenerator = new Random();
 
 	private int Ki;
 	private int Ti;
@@ -86,7 +92,7 @@ public class Graf {
 
 		List<GraphPath<String, DefaultEdge>> sciezkiOdDo = kpath
 				.getPaths(endVertex); // generuje sciezki i zwraca liste
-		
+
 		if (sciezkiOdDo.size() == 0)
 			throw new NullPointerException();
 
@@ -95,11 +101,89 @@ public class Graf {
 		System.out.println("K-Shortest Paths:");
 
 		for (GraphPath<String, DefaultEdge> lst : sciezkiOdDo) {
-			System.out.println(lst.getEdgeList());
+			System.out.println(lst.getEdgeList().toString());
 			sciezki.add(lst.getEdgeList().toString());
 		}
 
 		return sciezki;
+	}
+
+	public String znajdzLosowaSciezke(String startVertex, String endVertex,
+			int t, SimpleGraph<String, DefaultEdge> graf) {
+
+		List<String> visitedNodes = new ArrayList<>();
+		Stack<String> stack = new Stack<>();
+
+		visitedNodes.add(startVertex);
+		stack.push(startVertex);
+
+		
+		System.out.println("\n" + startVertex + "   " + endVertex);
+		String currentNode = startVertex;
+
+		Iterator<String> iter = stack.iterator();
+		while (iter.hasNext())
+			System.out.println("stos: " + iter.next());
+
+		while (visitedNodes.size() <= graf.vertexSet().size()
+				&& !currentNode.equals(endVertex)) {
+
+			System.out.println("current node " + currentNode);
+			List<String> notVisitedNeighbors = znajdzNieodwiedzonychSasiadow(
+					graf, currentNode, visitedNodes);
+			if (notVisitedNeighbors.size() > 0) {
+				String neighborNode = wybierzLosowegoSasiada(notVisitedNeighbors);
+				System.out.println("neighbor node " + neighborNode);
+				visitedNodes.add(neighborNode);
+				stack.push(neighborNode);
+				currentNode = neighborNode;
+
+			} else {
+				System.out.println("nie ma sasiadow");
+				stack.pop();
+				currentNode = stack.peek();
+			}
+
+			iter = stack.iterator();
+			while (iter.hasNext())
+				System.out.println("stos: " + iter.next());
+		}
+		
+		System.out.println("Skonczylem \n");
+
+		if (!currentNode.equals(endVertex))
+		{
+			System.out.println("Nie mozna znalezc sciezki");
+			return null;
+			
+		}
+		
+		iter = stack.iterator();
+		String sciezka ="";
+		while (iter.hasNext())
+			sciezka +=  iter.next() + " ";
+		
+		System.out.println("sciezka: " + sciezka);
+		return sciezka;	
+		
+	}
+
+	public String wybierzLosowegoSasiada(List<String> sasiedzi) {
+		int index = randomGenerator.nextInt(sasiedzi.size());
+		return sasiedzi.get(index);
+	}
+
+	public List<String> znajdzNieodwiedzonychSasiadow(
+			SimpleGraph<String, DefaultEdge> graf, String vertex,
+			List<String> visitedNodes) {
+		List<String> sasiedzi = new ArrayList<>();
+		sasiedzi = Graphs.neighborListOf(graf, vertex);
+		sasiedzi.removeAll(visitedNodes);
+
+		System.out.println("nieodwiedzeni sasiedzi");
+		for (String s : sasiedzi)
+			System.out.println(s);
+		return sasiedzi;
 	}
 
 }

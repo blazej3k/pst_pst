@@ -22,9 +22,10 @@ public class Rob {
 			s = args[0];
 
 		} catch (Exception e) {
-			System.out.println("g-generuj graf, p-generuj tylko sciezki");
-			s = "p";
-			return;
+			System.out
+					.println("g-generuj graf, p-generuj tylko sciezki, h-symulowane wy¿arzanie");
+			s = "h";
+			// return;
 		}
 		switch (s) {
 		case "g":
@@ -63,34 +64,43 @@ public class Rob {
 
 				numOfPaths = 10;
 				sciezkaZapisu = "C:\\Users\\Teodor\\Desktop\\ampl1.dat";
-				sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\p1.dat";
+				sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\t1.dat";
 
-				return;
+				//return;
 
 			}
 			rob.tylkoSciezki();
 			break;
+		case "h":
+			try {
+				sciezkaOdczytu = args[1];
+			} catch (Exception e) {
+				sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";
+			}
+			rob.heureza();
+			break;
 		default:
-			System.out.println("g-generuj graf, p-generuj œcie¿ki");
+			System.out
+					.println("g-generuj graf, p-generuj œcie¿ki, h-symulowane wy¿arzanie");
 		}
 
 	}
 
 	public void nowyGraf() {
 
-		
-		  Graf graf= new Graf(numOfClients, numOfTransits, percent);
-		  SimpleGraph<String, DefaultEdge> simpleGraph = graf.generujGraf();
-		  
-		  AmplText ampl = new AmplText(sciezkaZapisu);
-		  ampl.generujPlik(simpleGraph, sciezkaZapisu, numOfClients, numOfTransits, numOfDemands, transitsLimit);
-		 
+		Graf graf = new Graf(numOfClients, numOfTransits, percent);
+		SimpleGraph<String, DefaultEdge> simpleGraph = graf.generujGraf();
+
+		AmplText ampl = new AmplText(sciezkaZapisu);
+		ampl.generujPlik(simpleGraph, sciezkaZapisu, numOfClients,
+				numOfTransits, numOfDemands, transitsLimit);
+
 	}
 
 	public void tylkoSciezki() {
 		AmplText ampl = new AmplText(sciezkaOdczytu, sciezkaZapisu);
 		ampl.odczytajPlik();
-		
+
 		System.out.println("Tworze graf.");
 		Graf graf = new Graf();
 		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(
@@ -99,18 +109,45 @@ public class Rob {
 
 		List<List<String>> sciezki = new ArrayList<>();
 
-		try 
-		{
-		for (String[] d : demands)
-			sciezki.add(graf.getSciezki(d[0], d[1], numOfPaths, simpleGraph));
-		}
-		catch (NullPointerException e)
-		{
-			System.out.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
+		try {
+			for (String[] d : demands)
+				sciezki.add(graf
+						.getSciezki(d[0], d[1], numOfPaths, simpleGraph));
+		} catch (NullPointerException e) {
+			System.out
+					.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
 			return;
 		}
 
 		ampl.zapis(sciezki);
+	}
+
+	public void heureza() {
+		AmplText ampl = new AmplText(sciezkaOdczytu, null);
+		ampl.odczytajPlik();
+
+		System.out.println("Tworze graf.");
+		Graf graf = new Graf();
+		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(
+				ampl.getWierzcholki(), ampl.getKrawedzie());
+		String[][] demands = ampl.getDemands();
+		
+		//inicjalne rozwiazanie
+		List<List<String>> sciezki = new ArrayList<>();
+		try {
+			for (String[] d : demands)
+				sciezki.add(graf
+						.getSciezki(d[0], d[1], 1, simpleGraph));
+		} catch (NullPointerException e) {
+			System.out
+					.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
+			return;
+		} 
+		//trzeba wybrac losowo jeden demand i wybrac dla niego sciezke
+		for (String[] d : demands) {
+			graf.znajdzLosowaSciezke(d[0], d[1], 10, simpleGraph);
+		}
+
 	}
 
 }
