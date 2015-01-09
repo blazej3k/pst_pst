@@ -10,6 +10,11 @@ public class Edge {
 	
 	
 	
+	public Edge(String startVertex, String endVertex) {
+		super();
+		this.startVertex = startVertex;
+		this.endVertex = endVertex;
+	}
 	public Edge(String startVertex, String endVertex, float unitCost,
 			int installationCost) {
 		super();
@@ -62,6 +67,7 @@ public class Edge {
 		return result;
 	}
 
+	//TODO chyba trzeba poprawic
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -74,12 +80,12 @@ public class Edge {
 		if (endVertex == null) {
 			if (other.endVertex != null)
 				return false;
-		} else if (!endVertex.equals(other.endVertex))
+		} else if (!endVertex.equals(other.endVertex) && !endVertex.equals(other.startVertex))
 			return false;
 		if (startVertex == null) {
 			if (other.startVertex != null)
 				return false;
-		} else if (!startVertex.equals(other.startVertex))
+		} else if (!startVertex.equals(other.startVertex) && !startVertex.equals(other.endVertex))
 			return false;
 		return true;
 	}

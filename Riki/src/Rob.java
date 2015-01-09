@@ -15,7 +15,7 @@ public class Rob {
 	private static int transitsLimit;
 	private static int numOfPaths;
 	private static String sciezka = "res/";
-	private static String nazwaPlikuOdczytu = "ampl.dat";
+	private static String nazwaPlikuOdczytu = "nt2.dat";
 	private static String nazwaPlikuZapisu = "ampl.dat";
 	private static String sciezkaOdczytu = sciezka+nazwaPlikuOdczytu;
 	private static String sciezkaZapisu = sciezka+nazwaPlikuZapisu;
@@ -134,14 +134,27 @@ private void heurystyka() {
 		List<Demand> demands = ampl.getDemands();
 		List<Edge> edges = ampl.getEdges();
 		
-//		for (Edge e: edges) 
-//			System.out.println("Sciezka Edge: "+e.getStartVertex()+" "+e.getEndVertex());
+		for (Edge e: edges) 
+			System.out.println("Edge: "+e.getStartVertex()+" "+e.getEndVertex());
 		
 		System.out.println("Tworze graf.");
 		Graf graf = new Graf();
 		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(ampl.getWierzcholki(), ampl.getKrawedzie());
 
 		System.out.println("Iloœæ demandów: "+demands.size());
+		try {
+			for (Demand d: demands)
+			{
+				graf.znajdzNajkrotszaSciezke(d.getStartVertex(), d.getEndVertex(), simpleGraph, edges);
+				graf.znajdzLosowaSciezke(d.getStartVertex(), d.getEndVertex(), 10, simpleGraph, edges);
+				
+			}
+		} catch (NullPointerException e) {
+			System.out
+			.println("Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
+			return;
+		}
+		
 		
 		Demand dem = demands.get(0);											// wybieram losowo demand
 		List<String> sciezkaX = rozwiazanieInicjalne(dem, graf, simpleGraph);		// sciezki w durnych listach stringow - wezlow
@@ -161,8 +174,8 @@ private void heurystyka() {
 		
 		System.out.println("Inicjalna funkcja kosztu: "+fkosztX);
 		
-		while(count < 10) {													// kryterium stopu
-			sciezkaY = graf.znajdzLosowaSciezke(dem.getStartVertex(), dem.getEndVertex(), 10, simpleGraph);		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
+		/*while(count < 10) {													// kryterium stopu
+			sciezkaY = graf.znajdzLosowaSciezke(dem.getStartVertex(), dem.getEndVertex(), 10, simpleGraph, edges);		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
 			eY = sciezkaE(sciezkaY, edges);
 			fkosztY = funkcjaKosztu(dem, eY);
 			
@@ -180,7 +193,7 @@ private void heurystyka() {
 			temperatura *= alfa;
 			count++;
 		}
-		
+		*/
 		System.out.println();
 		System.out.println();
 		System.out.println("Ostateczna funkcja kosztu: "+fkosztX);
