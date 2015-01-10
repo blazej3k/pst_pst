@@ -1,3 +1,4 @@
+import java.util.List;
 
 public class Demand {
 
@@ -5,9 +6,10 @@ public class Demand {
 	private String endVertex;
 	private int demandVal;
 	private int demandProfit;
-	
-	
-	
+	private List<String> transitNodes;
+	private List<Edge> edgeList;
+	private float fKosztu;
+	private Boolean czyRealizowany;
 	
 	public Demand(String startVertex, String endVertex, int demandVal,
 			int demandProfit) {
@@ -16,6 +18,36 @@ public class Demand {
 		this.endVertex = endVertex;
 		this.demandVal = demandVal;
 		this.demandProfit = demandProfit;
+		
+		System.out.println("Tworze demand");
+		setCzyRealizowany(true);
+	}
+	
+	public int getTransitIlosc() {
+		if(transitNodes != null)
+			return transitNodes.size();
+		else
+			return -1;
+	}
+	
+	public float getfKosztu() {
+		return fKosztu;
+	}
+
+	public void setfKosztu(float fKosztu) {
+		this.fKosztu = fKosztu;
+	}
+	public List<Edge> getEdgeList() {
+		return edgeList;
+	}
+	public void setEdgeList(List<Edge> edgeList) {
+		this.edgeList = edgeList;
+	}
+	public List<String> getTransitNodes() {
+		return transitNodes;
+	}
+	public void setTransitNodes(List<String> transitNodes) {
+		this.transitNodes = transitNodes;
 	}
 	public String getStartVertex() {
 		return startVertex;
@@ -71,6 +103,14 @@ public class Demand {
 		} else if (!startVertex.equals(other.startVertex))
 			return false;
 		return true;
+	}
+
+	public Boolean getCzyRealizowany() {
+		return czyRealizowany;
+	}
+
+	public void setCzyRealizowany(Boolean czyRealizowany) {
+		this.czyRealizowany = czyRealizowany;
 	}
 	
 	

@@ -1,5 +1,5 @@
 
-public class Edge {
+public class Edge implements Comparable <Edge>{
 
 	
 	private String startVertex;
@@ -68,26 +68,56 @@ public class Edge {
 	}
 
 	//TODO chyba trzeba poprawic
+	//Obwarzanek: poprawilem
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Edge other = (Edge) obj;
-		if (endVertex == null) {
-			if (other.endVertex != null)
-				return false;
-		} else if (!endVertex.equals(other.endVertex) && !endVertex.equals(other.startVertex))
-			return false;
-		if (startVertex == null) {
-			if (other.startVertex != null)
-				return false;
-		} else if (!startVertex.equals(other.startVertex) && !startVertex.equals(other.endVertex))
-			return false;
-		return true;
+		
+		Edge edge = (Edge) obj;
+		String v1a = this.getStartVertex();
+		String v2a = edge.getStartVertex();
+		String v1b = this.getEndVertex();
+		String v2b = edge.getEndVertex();
+		
+		if(v1a.equals(v2a) && v1b.equals(v2b))
+			return true;
+		else if(v1a.equals(v2b) && v2a.equals(v1b))
+			return true;
+		else return false;
+		
+		
+//		
+//		if (this == obj)
+//			return true;
+//
+//		Edge other = (Edge) obj;
+//		if (endVertex == null) {
+//			if (other.endVertex != null)
+//				return false;
+//		} else if (!endVertex.equals(other.endVertex) && !endVertex.equals(other.startVertex))
+//			return false;
+//		if (startVertex == null) {
+//			if (other.startVertex != null)
+//				return false;
+//		} else if (!startVertex.equals(other.startVertex) && !startVertex.equals(other.endVertex))
+//			return false;
+//		return true;
+	}
+	@Override
+	public int compareTo(Edge edge) {
+		if (this.equals(edge)) {
+			return 0;
+		}
+		else if (!this.getStartVertex().equals(edge.getStartVertex()))
+			return 1;
+		else if (!this.getEndVertex().equals(edge.getEndVertex()))
+			return -1;
+		else
+			return -1;
+		
 	}
 	
 	
