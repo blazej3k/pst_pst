@@ -14,12 +14,14 @@ public class Wyzarzanie {
 	private List<Edge> edges;
 	private SimpleGraph<String, DefaultEdge> simpleGraph;
 	private Graf graf;
+	private int maxTransit;
 
-	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf) {
+	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit) {
 		this.demands = demands;
 		this.edges = edges;
 		this.simpleGraph = simpleGraph;
 		this.graf = graf;
+		this.maxTransit = maxTransit;
 
 		heurystyka();
 	}
@@ -45,9 +47,9 @@ public class Wyzarzanie {
 		Boolean tempCzyRealizowany;
 //		Demand tempDemand;
 		
-		while (sKosztX < 7000f) {					// kryterium stopu
-			count=0;
-			ileIteracji++;
+//		while (sKosztX < 7000f) {					// kryterium stopu, do poszukiwania lepszych parametrów
+//			count=0;
+//			ileIteracji++;
 			
 			while(count < 200) {					// kryterium stopu, mozna dodac dodatkowe w while obejmujacym ten. np czasowe albo wynik powyzej jakiegos
 				wybor = ktoryDemand();
@@ -57,7 +59,7 @@ public class Wyzarzanie {
 				//			tempDemand = dem;					// zachowaj demand tymczasowo - zachowuje demand po to zeby zachowac zarowno sciezki jak i jego stan czyRealizowac
 				setCzyRealizowac(wybor);
 
-				dem.setEdgeList(graf.znajdzLosowaSciezke(dem.getStartVertex(), dem.getEndVertex(), 10, simpleGraph, edges));		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
+				dem.setEdgeList(graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands));		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
 
 				sKosztY = sumFunkcjaKosztu();
 				delta = sKosztY - sKosztX;
@@ -80,10 +82,10 @@ public class Wyzarzanie {
 					System.out.println("Mam lepsza opcje, KosztX="+sKosztX+", KosztY="+sKosztY);
 				}
 
-				temperatura *= alfa;
+				temperatura *= alfa;			// chlodzenie
 				count++;
 			}
-		}
+//		}
 
 		sKosztX = sumFunkcjaKosztu();			// przeliczanie kontrolne, sprawdza czy sie parametry zachowuja
 		System.out.println();
@@ -92,9 +94,14 @@ public class Wyzarzanie {
 		for (Demand d: demands)
 		{
 			System.out.println("Realizowany: "+d.getCzyRealizowany());
-//			for (Edge e: d.getEdgeList()) {
-//				System.out.println("KrawêdŸ: "+e.getStartVertex()+" "+e.getEndVertex());
-//			}
+			System.out.println("Tranzyty: "+d.getTransitNodes());
+			String trasa="";	// wiem ze nieoptymalne ;]
+			for (Edge e: d.getEdgeList()) {
+				trasa += e.getStartVertex() + " " +e.getEndVertex() + ", ";
+			}
+			
+			System.out.println("Trasa: "+trasa);
+			
 		}
 		System.out.println();
 		System.out.println("Ostateczna funkcja kosztu: "+ sKosztX+" znaleziona w "+ileIteracji+" iteracji, Zar pracowal: "+ileZaru+" razy.");
@@ -167,7 +174,7 @@ public class Wyzarzanie {
 		try {
 			for (Demand d: demands)
 			{
-				d.setEdgeList(graf.znajdzNajkrotszaSciezke(d.getStartVertex(), d.getEndVertex(), simpleGraph, edges));
+				d.setEdgeList(graf.znajdzNajkrotszaSciezke(d.getStartVertex(), d.getEndVertex(), simpleGraph, edges, maxTransit));
 				
 				for (Edge x: d.getEdgeList()) {
 					System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex()+". Trasa: "+x.getStartVertex()+" "+x.getEndVertex());

@@ -119,7 +119,7 @@ public class Graf {
 	//jesli nie moze znalezc sciezki rzuca nullPointerException
 	public List<Edge> znajdzNajkrotszaSciezke(String startVertex,
 			String endVertex, SimpleGraph<String, DefaultEdge> graf,
-			List<Edge> edges) throws NullPointerException {
+			List<Edge> edges, int maxTransit) throws NullPointerException {
 		
 		DijkstraShortestPath<String, DefaultEdge> path = new DijkstraShortestPath<String, DefaultEdge>(graf, startVertex, endVertex);
 		GraphPath<String, DefaultEdge> sciezkaOdDo = path.getPath(); // generuje sciezki i zwraca liste
@@ -152,8 +152,8 @@ public class Graf {
 	//TODO dopisac ograniczeie na liczbe wezlow tranzytowych
 	//TODO dopisac zeby nie znajdowal caly czas tej samej sciezki
 	//jesli nie moze znalezc sciezki zwraca null
-	public List<Edge> znajdzLosowaSciezke(String startVertex, String endVertex,
-			int t, SimpleGraph<String, DefaultEdge> graf, List<Edge> edges) {
+	public List<Edge> znajdzLosowaSciezke(int aktualnyDemand,
+			int t, SimpleGraph<String, DefaultEdge> graf, List<Edge> edges, List<Demand> demands) {
 
 		List<String> visitedNodes = new ArrayList<>();
 		Stack<String> stack = new Stack<>();

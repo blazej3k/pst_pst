@@ -1,4 +1,6 @@
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Demand {
 
@@ -6,7 +8,7 @@ public class Demand {
 	private String endVertex;
 	private int demandVal;
 	private int demandProfit;
-	private List<String> transitNodes;
+	private Set<String> transitNodes;
 	private List<Edge> edgeList;
 	private float fKosztu;
 	private Boolean czyRealizowany;
@@ -40,14 +42,24 @@ public class Demand {
 	public List<Edge> getEdgeList() {
 		return edgeList;
 	}
-	public void setEdgeList(List<Edge> edgeList) {
+	public void setEdgeList(List<Edge> edgeList) {		// automatycznie wybiera unikalna liste u¿ytych wêz³ów tranzytowych i ustawia
 		this.edgeList = edgeList;
+		transitNodes = new TreeSet<String>();
+		
+		String w1="", w2="";
+		for (Edge e: edgeList) {
+			w1 = e.getStartVertex();
+			w2 = e.getEndVertex();
+			
+			if (w1.startsWith("T")) 
+				transitNodes.add(w1);
+			if (w2.startsWith("T"))
+				transitNodes.add(w2);
+		}
 	}
-	public List<String> getTransitNodes() {
+	
+	public Set<String> getTransitNodes() {
 		return transitNodes;
-	}
-	public void setTransitNodes(List<String> transitNodes) {
-		this.transitNodes = transitNodes;
 	}
 	public String getStartVertex() {
 		return startVertex;

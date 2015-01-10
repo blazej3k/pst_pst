@@ -137,8 +137,9 @@ public class Rob {
 		System.out.println("Tworze graf.");
 		Graf graf = new Graf();
 		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(ampl.getWierzcholki(), ampl.getKrawedzie());
+		int maxTransit = ampl.getTransitsLimit();
 		
-		new Wyzarzanie(demands, edges, simpleGraph, graf);
+		new Wyzarzanie(demands, edges, simpleGraph, graf, transitsLimit);
 	}
 
 }
