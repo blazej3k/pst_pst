@@ -44,6 +44,7 @@ public class Wyzarzanie {
 		int ileIteracji=0;				// pomaga wyznaczyc optymalne wartosci temperatury i alfy.
 		int ileZaru=0;
 		List<Edge> tempEdgeList;
+		List<Edge> nowaSciezka;
 		Boolean tempCzyRealizowany;
 //		Demand tempDemand;
 		
@@ -59,8 +60,10 @@ public class Wyzarzanie {
 				//			tempDemand = dem;					// zachowaj demand tymczasowo - zachowuje demand po to zeby zachowac zarowno sciezki jak i jego stan czyRealizowac
 				setCzyRealizowac(wybor);
 
-				dem.setEdgeList(graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands));		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
-
+//				dem.setEdgeList(graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands));		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
+				nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);
+				ustawSciezke(dem, nowaSciezka);
+				
 				sKosztY = sumFunkcjaKosztu();
 				delta = sKosztY - sKosztX;
 
@@ -96,9 +99,10 @@ public class Wyzarzanie {
 			System.out.println("Realizowany: "+d.getCzyRealizowany());
 			System.out.println("Tranzyty: "+d.getTransitNodes());
 			String trasa="";	// wiem ze nieoptymalne ;]
-			for (Edge e: d.getEdgeList()) {
-				trasa += e.getStartVertex() + " " +e.getEndVertex() + ", ";
-			}
+			if (d.getEdgeList() != null)
+				for (Edge e: d.getEdgeList()) {
+					trasa += e.getStartVertex() + " " +e.getEndVertex() + ", ";
+				}
 			
 			System.out.println("Trasa: "+trasa);
 			
@@ -108,6 +112,23 @@ public class Wyzarzanie {
 
 	}
 
+	private Boolean ustawSciezke(Demand d, List<Edge> nowaSciezka) {
+
+		try{
+			d.setEdgeList(nowaSciezka);
+
+		}
+		catch (NullPointerException e) {
+			System.out.println(
+					"Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
+			System.out.println("Wy³¹czam zapotrzebowanie: "+ d.getStartVertex()+" "+d.getEndVertex());
+			d.setCzyRealizowany(false);
+		}
+		return null;
+
+
+	}
+	
 	private int ktoryDemand() {			
 		float bound = demands.size()-1;								// granica zeby nie przekraczac indeksu
 		int wybor = getIntRandom(bound);							// wybieram demand
@@ -170,20 +191,19 @@ public class Wyzarzanie {
 
 	public void rozwiazanieInicjalne() {
 		System.out.println("Inicjalne: ");
-		
-		try {
-			for (Demand d: demands)
-			{
-				d.setEdgeList(graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands,maxTransit));
-				
-				for (Edge x: d.getEdgeList()) {
-					System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex()+". Trasa: "+x.getStartVertex()+" "+x.getEndVertex());
-				}
-			}
-		} catch (NullPointerException e) {
-			System.out.println(
-					"Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
+		List<Edge> nowaSciezka = new LinkedList<Edge>() ;
+			
+		for (Demand d: demands) {
+			nowaSciezka = graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands,maxTransit);
+			ustawSciezke(d, nowaSciezka);
 		}
+		
+/*		if (nowaSciezka != null) {
+			d.setEdgeList(nowaSciezka);
+
+			for (Edge x: d.getEdgeList()) {
+				System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex()+". Trasa: "+x.getStartVertex()+" "+x.getEndVertex());
+			}*/
 	}
 }
 
