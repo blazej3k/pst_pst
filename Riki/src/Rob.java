@@ -30,7 +30,7 @@ public class Rob {
 			System.out
 					.println("g-generuj graf, p-generuj tylko sciezki, h-symulowane wy¿arzanie");
 			s = "h";
-			//return;
+			return;
 		}
 		switch (s) {
 		case "g":
@@ -53,7 +53,7 @@ public class Rob {
 				transitsLimit = 5;
 				//sciezkaZapisu = "C:\\Users\\Teodor\\Desktop\\ampl.dat";
 
-				//return;
+				return;
 			}
 			rob.nowyGraf();
 			break;
@@ -88,7 +88,7 @@ public class Rob {
 				temperatura = 200f;
 				maxIter = 200;
 				//sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";
-				//return;
+				return;
 			}
 			rob.heurystyka();
 			break;
