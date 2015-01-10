@@ -68,7 +68,8 @@ public class Wyzarzanie {
 				delta = sKosztY - sKosztX;
 
 				if (delta < 0) {										// jesli nowe gorsze, maksymalizuje f kosztu, przywroc stara trase;
-					dem.setEdgeList(tempEdgeList);						// i nie zmieniaj KosztX
+//					dem.setEdgeList(tempEdgeList);						// i nie zmieniaj KosztX
+					ustawSciezke(dem, tempEdgeList);
 					dem.setCzyRealizowany(tempCzyRealizowany);
 					System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
 					//				dem = tempDemand;
