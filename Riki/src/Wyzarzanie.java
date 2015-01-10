@@ -174,7 +174,7 @@ public class Wyzarzanie {
 		try {
 			for (Demand d: demands)
 			{
-				d.setEdgeList(graf.znajdzNajkrotszaSciezke(d.getStartVertex(), d.getEndVertex(), simpleGraph, edges, maxTransit));
+				d.setEdgeList(graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands,maxTransit));
 				
 				for (Edge x: d.getEdgeList()) {
 					System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex()+". Trasa: "+x.getStartVertex()+" "+x.getEndVertex());

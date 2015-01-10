@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
@@ -12,7 +12,6 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KShortestPaths;
 import org.jgrapht.generate.RandomGraphGenerator;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.EdgeSetFactory;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Graf {
@@ -117,46 +116,89 @@ public class Graf {
 	}
 
 	//jesli nie moze znalezc sciezki rzuca nullPointerException
-	public List<Edge> znajdzNajkrotszaSciezke(String startVertex,
-			String endVertex, SimpleGraph<String, DefaultEdge> graf,
-			List<Edge> edges, int maxTransit) throws NullPointerException {
-		
-		DijkstraShortestPath<String, DefaultEdge> path = new DijkstraShortestPath<String, DefaultEdge>(graf, startVertex, endVertex);
-		GraphPath<String, DefaultEdge> sciezkaOdDo = path.getPath(); // generuje sciezki i zwraca liste
+	public List<Edge> znajdzNajkrotszaSciezke(int aktualnyDemand,
+			SimpleGraph<String, DefaultEdge> graf, List<Edge> edges,
+			List<Demand> demands, int maxTransit) throws NullPointerException {
+		Demand currentDemand = demands.get(aktualnyDemand);
+		String startVertex = currentDemand.getStartVertex();
+		String endVertex = currentDemand.getEndVertex();
 
+		TreeSet<String> wezlyTranzytowe = new TreeSet<>();
+		DijkstraShortestPath<String, DefaultEdge> path = new DijkstraShortestPath<String, DefaultEdge>(
+				graf, startVertex, endVertex);
+		GraphPath<String, DefaultEdge> sciezkaOdDo = path.getPath();															// sciezki
+
+		
 		if (sciezkaOdDo == null)
 			throw new NullPointerException();
 
-		List<Edge> sciezka = new ArrayList<>();
-		//System.out.println("Shortest path:");
-			for (DefaultEdge e : sciezkaOdDo.getEdgeList()) {
-				String x = e.toString();
-
-				x = x.replace("(", "");
-				x = x.replace(")", ""); // usuniecie nawiasow
-				String[] krawedz = x.split(":");
-
-				String wezelA = krawedz[0].trim();
-				String wezelB = krawedz[1].trim();
-				//System.out.println(wezelA + "  " + wezelB);
-				Edge edge = new Edge(wezelA, wezelB);
-				int index = edges.indexOf(edge);
-				//System.out.println(index);
-				sciezka.add(edges.get(index));
+		// zliczenie unikalnych wezlow tranzytowych wykorzystywanych przez inne
+		// demandy
+		for (Demand d : demands) {
+			if (!d.equals(currentDemand)) {
+				if (d.getTransitNodes() != null)
+					wezlyTranzytowe.addAll(d.getTransitNodes());
 			}
+		}
+
+		List<Edge> sciezka = new ArrayList<>();
+		// System.out.println("Shortest path:");
+		for (DefaultEdge e : sciezkaOdDo.getEdgeList()) {
+			String x = e.toString();
+
+			x = x.replace("(", "");
+			x = x.replace(")", ""); // usuniecie nawiasow
+			String[] krawedz = x.split(":");
+
+			String wezelA = krawedz[0].trim();
+			String wezelB = krawedz[1].trim();
+
+			// System.out.println(wezelA + "  " + wezelB);
+			Edge edge = new Edge(wezelA, wezelB);
+			int index = edges.indexOf(edge);
+			// System.out.println(index);
+			sciezka.add(edges.get(index));
+
+			if (wezelA.startsWith("T"))
+				wezlyTranzytowe.add(wezelA);
+			if (wezelB.startsWith("T"))
+				wezlyTranzytowe.add(wezelB);
+
+		}
+		System.out.println("SIZE: " + wezlyTranzytowe.size());
+		for (String transit : wezlyTranzytowe)
+			System.out.println(transit);
+
+		System.out.println("MAX: " + maxTransit);
+
+		if (wezlyTranzytowe.size() > maxTransit)
+			return null;
 
 		return sciezka;
 
 	}
 
-	//TODO dopisac ograniczeie na liczbe wezlow tranzytowych
-	//TODO dopisac zeby nie znajdowal caly czas tej samej sciezki
-	//jesli nie moze znalezc sciezki zwraca null
-	public List<Edge> znajdzLosowaSciezke(int aktualnyDemand,
-			int t, SimpleGraph<String, DefaultEdge> graf, List<Edge> edges, List<Demand> demands) {
+	// jesli nie moze znalezc sciezki zwraca null
+	public List<Edge> znajdzLosowaSciezke(int aktualnyDemand, int maxTransit,
+			SimpleGraph<String, DefaultEdge> graf, List<Edge> edges,
+			List<Demand> demands) {
+
+		Demand currentDemand = demands.get(aktualnyDemand);
+		String startVertex = currentDemand.getStartVertex();
+		String endVertex = currentDemand.getEndVertex();
 
 		List<String> visitedNodes = new ArrayList<>();
 		Stack<String> stack = new Stack<>();
+		TreeSet<String> wezlyTranzytowe = new TreeSet<>();
+
+		// zliczenie unikalnych wezlow tranzytowych wykorzystywanych przez inne
+		// demandy
+		for (Demand d : demands) {
+			if (!d.equals(currentDemand)) {
+				if (d.getTransitNodes() != null)
+					wezlyTranzytowe.addAll(d.getTransitNodes());
+			}
+		}
 
 		visitedNodes.add(startVertex);
 		stack.push(startVertex);
@@ -165,30 +207,40 @@ public class Graf {
 		String currentNode = startVertex;
 
 		Iterator<String> iter = stack.iterator();
-
+		TreeSet<String> wezlyTranzytoweNowe = wezlyTranzytowe;
 		while (visitedNodes.size() <= graf.vertexSet().size()
 				&& !currentNode.equals(endVertex)) {
 
 			// System.out.println("current node " + currentNode);
 			List<String> notVisitedNeighbors = znajdzNieodwiedzonychSasiadow(
-					graf, currentNode, visitedNodes);
+					graf, currentNode, visitedNodes, wezlyTranzytoweNowe,
+					maxTransit);
 			if (notVisitedNeighbors.size() > 0) {
 				String neighborNode = wybierzLosowegoSasiada(notVisitedNeighbors);
 				// System.out.println("neighbor node " + neighborNode);
 				visitedNodes.add(neighborNode);
 				stack.push(neighborNode);
 				currentNode = neighborNode;
+				if (neighborNode.startsWith("T"))
+					wezlyTranzytoweNowe.add(neighborNode);
 
 			} else {
 				// System.out.println("nie ma sasiadow");
 				stack.pop();
+				if (currentNode.startsWith("T")
+						&& !wezlyTranzytowe.contains(currentNode))
+					wezlyTranzytoweNowe.remove(currentNode);
+				if (stack.size() == 0)
+				{
+					System.out.println("Nie mozna znalezc sciezki");
+					return null;
+				}
 				currentNode = stack.peek();
 			}
 
 			iter = stack.iterator();
-		
-		}
 
+		}
 
 		if (!currentNode.equals(endVertex)) {
 			System.out.println("Nie mozna znalezc sciezki");
@@ -200,14 +252,15 @@ public class Graf {
 		List<Edge> sciezka = new ArrayList<>();
 		String poprzedni = null;
 		String obecny;
-		//System.out.println("SCIEZKA:");
+		// System.out.println("SCIEZKA:");
 		while (iter.hasNext()) {
 			obecny = iter.next();
 			if (poprzedni != null) {
 				Edge e = new Edge(poprzedni, obecny);
 				int index = edges.indexOf(e);
 				sciezka.add(edges.get(index));
-				//System.out.println(e.getStartVertex() + "  " + e.getEndVertex() + "  " +index);
+				// System.out.println(e.getStartVertex() + "  " +
+				// e.getEndVertex() + "  " +index);
 			}
 			poprzedni = obecny;
 		}
@@ -222,10 +275,21 @@ public class Graf {
 
 	public List<String> znajdzNieodwiedzonychSasiadow(
 			SimpleGraph<String, DefaultEdge> graf, String vertex,
-			List<String> visitedNodes) {
+			List<String> visitedNodes, TreeSet<String> usedTransits,
+			int maxTransits) {
 		List<String> sasiedzi = new ArrayList<>();
 		sasiedzi = Graphs.neighborListOf(graf, vertex);
 		sasiedzi.removeAll(visitedNodes);
+
+		// jesli liczba wykorzystanych wezlow tranzytowych = dopuszczalnej , to
+		// nie mozna przejsc do NOWEGO tranzytowego
+		if (usedTransits.size() == maxTransits) {
+			for (int i = 0; i < sasiedzi.size(); i++) {
+				String sasiad = sasiedzi.get(i);
+				if (!usedTransits.contains(sasiad))
+					sasiedzi.remove(i);
+			}
+		}
 
 		/*
 		 * System.out.println("nieodwiedzeni sasiedzi"); for (String s :

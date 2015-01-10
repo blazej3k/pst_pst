@@ -1,7 +1,5 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
@@ -15,7 +13,7 @@ public class Rob {
 	private static int transitsLimit;
 	private static int numOfPaths;
 	private static String sciezka = "res/";
-	private static String nazwaPlikuOdczytu = "ampl.dat";
+	private static String nazwaPlikuOdczytu = "nt1.dat";
 	private static String nazwaPlikuZapisu = "ampl.dat";
 	private static String sciezkaOdczytu = sciezka+nazwaPlikuOdczytu;
 	private static String sciezkaZapisu = sciezka+nazwaPlikuZapisu;
@@ -139,7 +137,7 @@ public class Rob {
 		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(ampl.getWierzcholki(), ampl.getKrawedzie());
 		int maxTransit = ampl.getTransitsLimit();
 		
-		new Wyzarzanie(demands, edges, simpleGraph, graf, transitsLimit);
+		new Wyzarzanie(demands, edges, simpleGraph, graf, maxTransit);
 	}
 
 }
