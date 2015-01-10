@@ -74,7 +74,8 @@ public class Wyzarzanie {
 					//				dem = tempDemand;
 				}	
 				else if (getFloatRandom() <= Math.exp(-(delta/temperatura))) {	// metropolis test - chuk wie cio, Pjura³ke tak ka¿e, jesli on true, to tez przywroc stara sciezke
-					dem.setEdgeList(tempEdgeList);									// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
+					ustawSciezke(dem, tempEdgeList);
+//					dem.setEdgeList(tempEdgeList);									// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
 					dem.setCzyRealizowany(tempCzyRealizowany);
 					System.out.println("¯ar!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 					ileZaru++;
