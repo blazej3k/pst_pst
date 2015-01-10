@@ -67,6 +67,7 @@ public class Wyzarzanie {
 				sKosztY = sumFunkcjaKosztu();
 				delta = sKosztY - sKosztX;
 
+
 				if (delta < 0) {										// jesli nowe gorsze, maksymalizuje f kosztu, przywroc stara trase;
 					dem.setEdgeList(tempEdgeList);						// i nie zmieniaj KosztX
 					dem.setCzyRealizowany(tempCzyRealizowany);
