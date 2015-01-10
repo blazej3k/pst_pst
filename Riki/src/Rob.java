@@ -13,10 +13,12 @@ public class Rob {
 	private static int transitsLimit;
 	private static int numOfPaths;
 	private static String sciezka = "res/";
-	private static String nazwaPlikuOdczytu = "nt2.dat";
+	private static String nazwaPlikuOdczytu = "nt3.dat";
 	private static String nazwaPlikuZapisu = "ampl.dat";
 	private static String sciezkaOdczytu = sciezka+nazwaPlikuOdczytu;
 	private static String sciezkaZapisu = sciezka+nazwaPlikuZapisu;
+	private static float temperatura;
+	private static int maxIter;
 	
 	public static void main(String[] args) {		
 		String s = null;
@@ -28,7 +30,7 @@ public class Rob {
 			System.out
 					.println("g-generuj graf, p-generuj tylko sciezki, h-symulowane wy¿arzanie");
 			s = "h";
-			// return;
+			//return;
 		}
 		switch (s) {
 		case "g":
@@ -69,16 +71,24 @@ public class Rob {
 				sciezkaZapisu = "C:\\Users\\Teodor\\Desktop\\ampl1.dat";
 				sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\t1.dat";
 
-				//return;
+				return;
 
 			}
 			rob.tylkoSciezki();
 			break;
 		case "h":
 			try {
-				sciezkaOdczytu = args[1];
+				temperatura = Float.parseFloat(args[1]);
+				maxIter = Integer.parseInt(args[2]);
+				sciezkaOdczytu = args[3];
 			} catch (Exception e) {
+				System.out
+				.println("h [temperatura] [max_liczba_iteracji] [wejœciowy_plik_dat]");
+
+				temperatura = 200f;
+				maxIter = 200;
 				//sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";
+				//return;
 			}
 			rob.heurystyka();
 			break;
@@ -137,7 +147,7 @@ public class Rob {
 		SimpleGraph<String, DefaultEdge> simpleGraph = graf.grafNieskierowany(ampl.getWierzcholki(), ampl.getKrawedzie());
 		int maxTransit = ampl.getTransitsLimit();
 		
-		new Wyzarzanie(demands, edges, simpleGraph, graf, maxTransit);
+		new Wyzarzanie(demands, edges, simpleGraph, graf, maxTransit, temperatura, maxIter);
 	}
 
 }

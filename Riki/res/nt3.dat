@@ -1,0 +1,42 @@
+data;
+
+set CLIENTS := K1 K2 K3;
+set TRANSITS := T1 T2 T3;
+set LINKS1 := 	(K1, T1) (K1, T3)
+				(T1, T2)
+				(T2, K3)
+				(K2, T3) (K2, T1)
+				(T3, K3);
+set LINKS2 := 	(T1, K1) (T3, K1)
+				(T2, T1)
+				(K3, T2)
+				(T3, K2) (T1, K2)
+				(K3, T3);
+				
+set DEMANDS :=
+	(K1, K3)
+	(K2, K3);
+
+param transit_nodes_limit := 2;
+
+param: 			demand_val 	demand_profit:=
+K1 K3 			100			110
+K2 K3 			100			100;
+
+param:	unit_cost1	installation_cost1 :=
+K1 T1	0.1			40
+K1 T3	0.4			10
+T1 T2	0.1			1
+T2 K3	0.1			1
+K2 T3	0.1			60
+K2 T1	0.2			10
+T3 K3	0.1			10;
+
+param:	unit_cost2	installation_cost2 :=
+T1 K1 	0.1			40
+T3 K1 	0.4			10
+T2 T1 	0.1			1
+K3 T2 	0.1			1
+T3 K2 	0.1			60
+T1 K2 	0.2			10
+K3 T3 	0.1			10;

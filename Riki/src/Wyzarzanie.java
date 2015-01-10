@@ -16,17 +16,17 @@ public class Wyzarzanie {
 	private Graf graf;
 	private int maxTransit;
 
-	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit) {
+	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit, float temperatura, int maxIter) {
 		this.demands = demands;
 		this.edges = edges;
 		this.simpleGraph = simpleGraph;
 		this.graf = graf;
 		this.maxTransit = maxTransit;
 
-		heurystyka();
+		heurystyka(temperatura, maxIter);
 	}
 	
-	private void heurystyka() {
+	private void heurystyka(float temperatura, int maxIter) {
 		float sKosztX=0, sKosztY=0;
 		Demand dem;
 		
@@ -36,7 +36,7 @@ public class Wyzarzanie {
 //		sKosztX = sumFunkcjaKosztu();
 		System.out.println("Inicjalna funkcja kosztu: "+ sKosztX);
 		
-		float temperatura = 70000;
+		//float temperatura = 70000;
 		int count=0;
 		float delta=0;
 		float alfa = 0.95f;				// funkcja chlodzenia, im 
@@ -52,7 +52,7 @@ public class Wyzarzanie {
 //			count=0;
 //			ileIteracji++;
 			
-			while(count < 200) {					// kryterium stopu, mozna dodac dodatkowe w while obejmujacym ten. np czasowe albo wynik powyzej jakiegos
+			while(count < maxIter) {					// kryterium stopu, mozna dodac dodatkowe w while obejmujacym ten. np czasowe albo wynik powyzej jakiegos
 				wybor = ktoryDemand();
 				dem = demands.get(wybor);
 				tempEdgeList = dem.getEdgeList();	// zachowaj stara liste sciezek
