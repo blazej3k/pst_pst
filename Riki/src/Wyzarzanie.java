@@ -149,19 +149,13 @@ public class Wyzarzanie {
 
 	private Boolean ustawSciezke(Demand d, List<Edge> nowaSciezka) {
 
-		try {
+		if (nowaSciezka != null)
 			d.setEdgeList(nowaSciezka);
-
-		}
-		catch (NullPointerException e) {/*
-			System.out.println(
-					"Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
-			System.out.println("Wy³¹czam zapotrzebowanie: "+ d.getStartVertex()+" "+d.getEndVertex());*/
+		else {
+			System.out.println("Wy³¹czam zapotrzebowanie: "+ d.getStartVertex()+" "+d.getEndVertex());
 			d.setCzyRealizowany(false);
 		}
 		return null;
-
-
 	}
 	
 	private int ktoryDemand() {			
@@ -201,8 +195,7 @@ public class Wyzarzanie {
 		List<Edge> uzyteKrawedzie = new LinkedList<Edge>();
 		
 		for (Demand d: demands) {
-//			if (d.getCzyRealizowany()) {						// jesli ma nie byc realizowany to po prostu nie bedzie do sumowany do funkcji kosztu, nie zostana uzyte jego krawedzie itd
-			if (d.getEdgeList() != null) {
+			if (d.getCzyRealizowany()) {						// jesli ma nie byc realizowany to po prostu nie bedzie do sumowany do funkcji kosztu, nie zostana uzyte jego krawedzie itd
 				wyjatkoweKrawedzie.addAll(d.getEdgeList());										// powoduje DODANIE wyj¹tkowych krawêdzi
 				uzyteKrawedzie = d.getEdgeList();												// tu zostaj¹ WYBRANE krawedzie demandu do przeliczenia kosztu instalacji
 				profit += d.getDemandProfit();													// sumuje profity
@@ -231,13 +224,18 @@ public class Wyzarzanie {
 			
 		for (Demand d: demands) {
 			d.setCzyRealizowany(true);
+			
+			try {
+				nowaSciezka = graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands, maxTransit);
+			} catch (NullPointerException e) {
+				System.out.println("Graf niespojnym, brak sciezki dla "+d.getStartVertex()+" "+d.getEndVertex());;
+			}
+			
+			ustawSciezke(d, nowaSciezka);
 			System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex()+" "+d.getCzyRealizowany());
-			nowaSciezka = graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands, maxTransit);
 			
 //			for (Edge e: nowaSciezka)
 //				System.out.println("Sciezka: "+e.getStartVertex()+" "+e.getEndVertex());
-			
-			ustawSciezke(d, nowaSciezka);			
 		}
 		
 		System.out.println();
