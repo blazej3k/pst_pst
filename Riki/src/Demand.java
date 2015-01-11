@@ -49,19 +49,20 @@ public class Demand {
 	public void setEdgeList(List<Edge> edgeList) {		// automatycznie wybiera unikalna liste u¿ytych wêz³ów tranzytowych i ustawia
 		this.edgeList = edgeList;
 		transitNodes = new TreeSet<String>();
-		
-		String w1="", w2="";
-		for (Edge e: edgeList) {
-			w1 = e.getStartVertex();
-			w2 = e.getEndVertex();
-			
-			if (w1.startsWith("T")) 
-				transitNodes.add(w1);
-			if (w2.startsWith("T"))
-				transitNodes.add(w2);
+
+		if (this.edgeList == null || this.edgeList.isEmpty()) clearTransitNodes(); 
+		else {
+			String w1="", w2="";
+			for (Edge e: edgeList) {
+				w1 = e.getStartVertex();
+				w2 = e.getEndVertex();
+
+				if (w1.startsWith("T")) 
+					transitNodes.add(w1);
+				if (w2.startsWith("T"))
+					transitNodes.add(w2);
+			}
 		}
-		
-		if (this.edgeList == null || this.edgeList.isEmpty()) clearTransitNodes();
 	}
 	
 	public Set<String> getTransitNodes() {
