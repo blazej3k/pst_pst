@@ -196,7 +196,7 @@ public class Graf {
 		// demandy
 		for (Demand d : demands) {
 			
-			if (!d.equals(currentDemand) && !d.getCzyRealizowany()) {
+			if (!d.equals(currentDemand) && d.getCzyRealizowany()) {
 				
 				if (d.getTransitNodes() != null)
 				{
