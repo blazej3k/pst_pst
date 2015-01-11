@@ -47,11 +47,6 @@ public class Wyzarzanie {
 		
 		System.out.println("Iloœæ demandow: "+demands.size());
 
-//		rozwiazanieInicjalne();		// wszystkie demandy otrzymuj¹ rozwi¹zania inicjalne tj. najkrótsze œcie¿ki wzglêdem iloœci krawêdzi
-//		sKosztX = sumFunkcjaKosztu();
-		
-		
-		//float temperatura = 70000;
 		int count=0;
 		float delta=0;
 		float alfa = 0.95f;				// funkcja chlodzenia, 
@@ -61,7 +56,8 @@ public class Wyzarzanie {
 		List<Edge> tempEdgeList;
 		List<Edge> nowaSciezka;
 		Boolean tempCzyRealizowany;
-//		Demand tempDemand;
+		
+//		demands.remove(0);
 		
 		while (ilePrzebiegow < maxPrzebieg) {					// kryterium stopu, do poszukiwania lepszych parametrów
 			count=0;											// przebiegi musza byc niezalezne, resetuj wszystko
@@ -72,7 +68,7 @@ public class Wyzarzanie {
 			wybor=0;
 			ileZaru=0;
 			rozwiazanieInicjalne();
-			sKosztX=sumFunkcjaKosztu();
+			sKosztX=sumFunkcjaKosztu();	// inicjalna funkcja kosztu
 			sKosztY=0;
 			System.out.println("Inicjalna funkcja kosztu: "+ sKosztX);
 			
@@ -81,7 +77,6 @@ public class Wyzarzanie {
 				dem = demands.get(wybor);
 				tempEdgeList = dem.getEdgeList();	// zachowaj stara liste sciezek
 				tempCzyRealizowany = dem.getCzyRealizowany();
-				//			tempDemand = dem;					// zachowaj demand tymczasowo - zachowuje demand po to zeby zachowac zarowno sciezki jak i jego stan czyRealizowac
 				setCzyRealizowac(wybor);
 
 				System.out.println("Wybra³em demand: "+dem.getStartVertex()+" "+dem.getEndVertex()+" "+dem.getCzyRealizowany());		
@@ -91,27 +86,26 @@ public class Wyzarzanie {
 				}
 				
 				sKosztY = sumFunkcjaKosztu();
+				System.out.println(sKosztY);
 				delta = sKosztY - sKosztX;
 
 
 				if (delta < 0) {										// jesli nowe gorsze, maksymalizuje f kosztu, przywroc stara trase;
-//					dem.setEdgeList(tempEdgeList);						// i nie zmieniaj KosztX
-					ustawSciezke(dem, tempEdgeList);
+//					ustawSciezke(dem, tempEdgeList);
+					dem.setEdgeList(tempEdgeList);						// przy przywracaniu musi miec mozliwosc ustawienia z powrotem NULL-a
 					dem.setCzyRealizowany(tempCzyRealizowany);
-//					System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
-					//				dem = tempDemand;
+					System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
+
 				}	
 				else if (getFloatRandom() <= Math.exp(-(delta/temperatura))) {	// metropolis test - chuk wie cio, Pjura³ke tak ka¿e, jesli on true, to tez przywroc stara sciezke
-					ustawSciezke(dem, tempEdgeList);
-//					dem.setEdgeList(tempEdgeList);									// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
+//					ustawSciezke(dem, tempEdgeList);							// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
 					dem.setCzyRealizowany(tempCzyRealizowany);
 //					System.out.println("¯ar!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 					ileZaru++;
-					//				dem = tempDemand;
 				}
 				else {
 					sKosztX = sKosztY;												// jeœli delta > 0, czyli nowe jest lepsze to zachowaj nowa trase (nie przywracaj starej) i aktualizuj funkcje kosztu
-//					System.out.println("Mam lepsza opcje, KosztX="+sKosztX+", KosztY="+sKosztY);
+					System.out.println("Mam lepsza opcje, KosztX="+sKosztX+", KosztY="+sKosztY);
 				}
 				temperatura *= alfa;			// chlodzenie
 				count++;
@@ -154,7 +148,7 @@ public class Wyzarzanie {
 
 	private Boolean ustawSciezke(Demand d, List<Edge> nowaSciezka) {
 
-		try{
+		try {
 			d.setEdgeList(nowaSciezka);
 
 		}
@@ -173,7 +167,7 @@ public class Wyzarzanie {
 		float bound = demands.size();								// granica zeby nie przekraczac indeksu
 		int wybor = getIntRandom(bound);							// wybieram demand
 		
-		System.out.println("Wybieram Dem: "+wybor);
+//		System.out.println("Wybieram Dem: "+wybor);
 		
 		return wybor;
 	}
@@ -206,7 +200,8 @@ public class Wyzarzanie {
 		List<Edge> uzyteKrawedzie = new LinkedList<Edge>();
 		
 		for (Demand d: demands) {
-			if (d.getCzyRealizowany()) {						// jesli ma nie byc realizowany to po prostu nie bedzie do sumowany do funkcji kosztu, nie zostana uzyte jego krawedzie itd
+//			if (d.getCzyRealizowany()) {						// jesli ma nie byc realizowany to po prostu nie bedzie do sumowany do funkcji kosztu, nie zostana uzyte jego krawedzie itd
+			if (d.getEdgeList() != null) {
 				wyjatkoweKrawedzie.addAll(d.getEdgeList());										// powoduje DODANIE wyj¹tkowych krawêdzi
 				uzyteKrawedzie = d.getEdgeList();												// tu zostaj¹ WYBRANE krawedzie demandu do przeliczenia kosztu instalacji
 				profit += d.getDemandProfit();													// sumuje profity
@@ -241,9 +236,7 @@ public class Wyzarzanie {
 //			for (Edge e: nowaSciezka)
 //				System.out.println("Sciezka: "+e.getStartVertex()+" "+e.getEndVertex());
 			
-			ustawSciezke(d, nowaSciezka);
-			
-			
+			ustawSciezke(d, nowaSciezka);			
 		}
 		
 		System.out.println();

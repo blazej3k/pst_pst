@@ -32,6 +32,10 @@ public class Demand {
 			return -1;
 	}
 	
+	public void clearTransitNodes() {
+		this.transitNodes.clear();
+	}
+	
 	public float getfKosztu() {
 		return fKosztu;
 	}
@@ -56,6 +60,8 @@ public class Demand {
 			if (w2.startsWith("T"))
 				transitNodes.add(w2);
 		}
+		
+		if (this.edgeList == null || this.edgeList.isEmpty()) clearTransitNodes();
 	}
 	
 	public Set<String> getTransitNodes() {
@@ -123,6 +129,9 @@ public class Demand {
 
 	public void setCzyRealizowany(Boolean czyRealizowany) {
 		this.czyRealizowany = czyRealizowany;
+		
+		if (!czyRealizowany)
+			this.clearTransitNodes();
 	}
 	
 	

@@ -128,7 +128,7 @@ public class Graf {
 				graf, startVertex, endVertex);
 		GraphPath<String, DefaultEdge> sciezkaOdDo = path.getPath();															// sciezki
 
-		
+		System.out.println("Szukam najkrótszej.");
 		if (sciezkaOdDo == null)
 			throw new NullPointerException();
 
@@ -165,11 +165,11 @@ public class Graf {
 				wezlyTranzytowe.add(wezelB);
 
 		}
-		System.out.println("SIZE: " + wezlyTranzytowe.size());
+//		System.out.println("SIZE: " + wezlyTranzytowe.size());
 		for (String transit : wezlyTranzytowe)
-			System.out.println(transit);
+//			System.out.println(transit);
 
-		System.out.println("MAX: " + maxTransit);
+//		System.out.println("MAX: " + maxTransit);
 
 		if (wezlyTranzytowe.size() > maxTransit)
 			return null;
@@ -191,10 +191,11 @@ public class Graf {
 		Stack<String> stack = new Stack<>();
 		TreeSet<String> wezlyTranzytowe = new TreeSet<>();
 
+		System.out.println("Szukam losowej.");
 		// zliczenie unikalnych wezlow tranzytowych wykorzystywanych przez inne
 		// demandy
 		for (Demand d : demands) {
-			if (!d.equals(currentDemand)) {
+			if (!d.equals(currentDemand) || !d.getCzyRealizowany()) {
 				if (d.getTransitNodes() != null)
 					wezlyTranzytowe.addAll(d.getTransitNodes());
 			}
