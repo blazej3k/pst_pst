@@ -33,7 +33,7 @@ public class Demand {
 	}
 	
 	public void clearTransitNodes() {
-		this.transitNodes.clear();
+		transitNodes = null;
 	}
 	
 	public float getfKosztu() {
@@ -50,8 +50,7 @@ public class Demand {
 		this.edgeList = edgeList;
 		transitNodes = new TreeSet<String>();
 
-		if (this.edgeList == null || this.edgeList.isEmpty()) clearTransitNodes(); 
-		else {
+		if (edgeList != null) {
 			String w1="", w2="";
 			for (Edge e: edgeList) {
 				w1 = e.getStartVertex();
@@ -64,6 +63,7 @@ public class Demand {
 			}
 		}
 	}
+
 	
 	public Set<String> getTransitNodes() {
 		return transitNodes;
@@ -132,7 +132,7 @@ public class Demand {
 		this.czyRealizowany = czyRealizowany;
 		
 		if (!czyRealizowany)
-			this.transitNodes = null;
+			clearTransitNodes();
 	}
 	
 	

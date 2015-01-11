@@ -92,8 +92,8 @@ public class Wyzarzanie {
 
 				if (delta < 0) {										// jesli nowe gorsze, maksymalizuje f kosztu, przywroc stara trase;
 //					ustawSciezke(dem, tempEdgeList);
-					dem.setEdgeList(tempEdgeList);						// przy przywracaniu musi miec mozliwosc ustawienia z powrotem NULL-a
 					dem.setCzyRealizowany(tempCzyRealizowany);
+					dem.setEdgeList(tempEdgeList);						// przy przywracaniu musi miec mozliwosc ustawienia z powrotem NULL-a
 					System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
 
 				}	
@@ -161,8 +161,6 @@ public class Wyzarzanie {
 	private int ktoryDemand() {			
 		float bound = demands.size();								// granica zeby nie przekraczac indeksu
 		int wybor = getIntRandom(bound);							// wybieram demand
-		
-//		System.out.println("Wybieram Dem: "+wybor);
 		
 		return wybor;
 	}
