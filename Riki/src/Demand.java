@@ -48,9 +48,11 @@ public class Demand {
 	}
 	public void setEdgeList(List<Edge> edgeList) {		// automatycznie wybiera unikalna liste u¿ytych wêz³ów tranzytowych i ustawia
 		this.edgeList = edgeList;
-		transitNodes = new TreeSet<String>();
-
+		
 		if (edgeList != null) {
+			System.out.println("Buduje tranzyty.");
+			transitNodes = new TreeSet<String>();
+			
 			String w1="", w2="";
 			for (Edge e: edgeList) {
 				w1 = e.getStartVertex();
@@ -61,7 +63,11 @@ public class Demand {
 				if (w2.startsWith("T"))
 					transitNodes.add(w2);
 			}
+			for (String t: transitNodes)
+				System.out.println("Tranzyty: "+t);
 		}
+		
+
 	}
 
 	
