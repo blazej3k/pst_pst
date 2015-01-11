@@ -15,42 +15,66 @@ public class Wyzarzanie {
 	private SimpleGraph<String, DefaultEdge> simpleGraph;
 	private Graf graf;
 	private int maxTransit;
+	private int maxPrzebieg;
+	private List<Float> wyniki;
+	private float orygTemp;
 
-	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit, float temperatura, int maxIter) {
+	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit, float orygTemp, int maxIter, int maxPrzebieg) {
 		this.demands = demands;
 		this.edges = edges;
 		this.simpleGraph = simpleGraph;
 		this.graf = graf;
 		this.maxTransit = maxTransit;
+		this.maxPrzebieg = maxPrzebieg;
+		this.orygTemp = orygTemp;
 
-		heurystyka(temperatura, maxIter);
+		System.out.println("Wyzarzanie.");
+		System.out.println("Demandow: "+demands.size());
+		System.out.println("Krawedzi: "+edges.size());
+		System.out.println("Maksymalna liczba wezlow tranzytowych: "+maxTransit);
+		System.out.println("Wprowadzona temperatura: "+orygTemp);
+		System.out.println("Liczba iteracji w przbiegu: " + maxIter);
+		System.out.println("Liczba przebiegów: " + maxPrzebieg);
+		
+		wyniki = new LinkedList<Float>();
+		
+		heurystyka(orygTemp, maxIter);
 	}
 	
 	private void heurystyka(float temperatura, int maxIter) {
 		float sKosztX=0, sKosztY=0;
 		Demand dem;
 		
-		System.out.println("Iloœæ demandów: "+demands.size());
+		System.out.println("Iloœæ demandow: "+demands.size());
 
-		rozwiazanieInicjalne();		// wszystkie demandy otrzymuj¹ rozwi¹zania inicjalne tj. najkrótsze œcie¿ki wzglêdem iloœci krawêdzi
+//		rozwiazanieInicjalne();		// wszystkie demandy otrzymuj¹ rozwi¹zania inicjalne tj. najkrótsze œcie¿ki wzglêdem iloœci krawêdzi
 //		sKosztX = sumFunkcjaKosztu();
-		System.out.println("Inicjalna funkcja kosztu: "+ sKosztX);
+		
 		
 		//float temperatura = 70000;
 		int count=0;
 		float delta=0;
-		float alfa = 0.95f;				// funkcja chlodzenia, im 
+		float alfa = 0.95f;				// funkcja chlodzenia, 
 		int wybor=0;
-		int ileIteracji=0;				// pomaga wyznaczyc optymalne wartosci temperatury i alfy.
+		int ilePrzebiegow=0;				// pomaga wyznaczyc optymalne wartosci temperatury i alfy.
 		int ileZaru=0;
 		List<Edge> tempEdgeList;
 		List<Edge> nowaSciezka;
 		Boolean tempCzyRealizowany;
 //		Demand tempDemand;
 		
-//		while (sKosztX < 7000f) {					// kryterium stopu, do poszukiwania lepszych parametrów
-//			count=0;
-//			ileIteracji++;
+		while (ilePrzebiegow < maxPrzebieg) {					// kryterium stopu, do poszukiwania lepszych parametrów
+			count=0;											// przebiegi musza byc niezalezne, resetuj wszystko
+			ilePrzebiegow++;
+			
+			temperatura = orygTemp;
+			delta=0;
+			wybor=0;
+			ileZaru=0;
+			rozwiazanieInicjalne();
+			sKosztX=sumFunkcjaKosztu();
+			sKosztY=0;
+			System.out.println("Inicjalna funkcja kosztu: "+ sKosztX);
 			
 			while(count < maxIter) {					// kryterium stopu, mozna dodac dodatkowe w while obejmujacym ten. np czasowe albo wynik powyzej jakiegos
 				wybor = ktoryDemand();
@@ -60,9 +84,11 @@ public class Wyzarzanie {
 				//			tempDemand = dem;					// zachowaj demand tymczasowo - zachowuje demand po to zeby zachowac zarowno sciezki jak i jego stan czyRealizowac
 				setCzyRealizowac(wybor);
 
-//				dem.setEdgeList(graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands));		// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
-				nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);
-				ustawSciezke(dem, nowaSciezka);
+				System.out.println("Wybra³em demand: "+dem.getStartVertex()+" "+dem.getEndVertex()+" "+dem.getCzyRealizowany());		
+				if(dem.getCzyRealizowany()) {
+					nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);			// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
+					ustawSciezke(dem, nowaSciezka);
+				}
 				
 				sKosztY = sumFunkcjaKosztu();
 				delta = sKosztY - sKosztX;
@@ -72,46 +98,57 @@ public class Wyzarzanie {
 //					dem.setEdgeList(tempEdgeList);						// i nie zmieniaj KosztX
 					ustawSciezke(dem, tempEdgeList);
 					dem.setCzyRealizowany(tempCzyRealizowany);
-					System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
+//					System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
 					//				dem = tempDemand;
 				}	
 				else if (getFloatRandom() <= Math.exp(-(delta/temperatura))) {	// metropolis test - chuk wie cio, Pjura³ke tak ka¿e, jesli on true, to tez przywroc stara sciezke
 					ustawSciezke(dem, tempEdgeList);
 //					dem.setEdgeList(tempEdgeList);									// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
 					dem.setCzyRealizowany(tempCzyRealizowany);
-					System.out.println("¯ar!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//					System.out.println("¯ar!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 					ileZaru++;
 					//				dem = tempDemand;
 				}
 				else {
 					sKosztX = sKosztY;												// jeœli delta > 0, czyli nowe jest lepsze to zachowaj nowa trase (nie przywracaj starej) i aktualizuj funkcje kosztu
-					System.out.println("Mam lepsza opcje, KosztX="+sKosztX+", KosztY="+sKosztY);
+//					System.out.println("Mam lepsza opcje, KosztX="+sKosztX+", KosztY="+sKosztY);
 				}
-
 				temperatura *= alfa;			// chlodzenie
 				count++;
 			}
-//		}
-
-		sKosztX = sumFunkcjaKosztu();			// przeliczanie kontrolne, sprawdza czy sie parametry zachowuja
-		System.out.println();
-		System.out.println("Demandy: ");
-		
-		for (Demand d: demands)
-		{
-			System.out.println("Realizowany: "+d.getCzyRealizowany());
-			System.out.println("Tranzyty: "+d.getTransitNodes());
-			String trasa="";	// wiem ze nieoptymalne ;]
-			if (d.getEdgeList() != null)
-				for (Edge e: d.getEdgeList()) {
-					trasa += e.getStartVertex() + " " +e.getEndVertex() + ", ";
-				}
+			sKosztX = sumFunkcjaKosztu();			// przeliczanie kontrolne, sprawdza czy sie parametry zachowuja
+			wyniki.add(sKosztX);
 			
-			System.out.println("Trasa: "+trasa);
-			
+			System.out.println();
+			System.out.println("Demandy: ");
+			for (Demand d: demands)					// wyswietla wynik biezacego przebiegu
+			{
+				System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex());
+				System.out.println("Realizowany: "+d.getCzyRealizowany());
+				System.out.println("Tranzyty: "+d.getTransitNodes());
+				String trasa="";	// wiem ze nieoptymalne ;]
+				if (d.getEdgeList() != null)
+					for (Edge e: d.getEdgeList()) {
+						trasa += e.getStartVertex() + " " +e.getEndVertex() + ", ";
+					}
+				
+				System.out.println("Trasa: "+trasa);
+			}
+			System.out.println();
+			System.out.println("Funkcja kosztu przebiegu "+ilePrzebiegow+" wynosi "+sKosztX+" Zar pracowal "+ileZaru+" razy.");
+			System.out.println();
+			System.out.println();
+			System.out.println();
 		}
+
+		float suma=0;
+		for (Float x: wyniki) {
+			suma += x;
+		}
+		suma /= wyniki.size(); // usrednienie wyniku
+		
 		System.out.println();
-		System.out.println("Ostateczna funkcja kosztu: "+ sKosztX+" znaleziona w "+ileIteracji+" iteracji, Zar pracowal: "+ileZaru+" razy.");
+		System.out.println("Ostateczna funkcja kosztu: "+ suma +" znaleziona w "+ilePrzebiegow+" przebiegow,"+" po "+count+" iteracji.");
 
 	}
 
@@ -121,10 +158,10 @@ public class Wyzarzanie {
 			d.setEdgeList(nowaSciezka);
 
 		}
-		catch (NullPointerException e) {
+		catch (NullPointerException e) {/*
 			System.out.println(
 					"Nie mo¿na wygenerowaæ ¿adnej œcie¿ki dla jednego z zapotrzebowañ");
-			System.out.println("Wy³¹czam zapotrzebowanie: "+ d.getStartVertex()+" "+d.getEndVertex());
+			System.out.println("Wy³¹czam zapotrzebowanie: "+ d.getStartVertex()+" "+d.getEndVertex());*/
 			d.setCzyRealizowany(false);
 		}
 		return null;
@@ -133,7 +170,7 @@ public class Wyzarzanie {
 	}
 	
 	private int ktoryDemand() {			
-		float bound = demands.size()-1;								// granica zeby nie przekraczac indeksu
+		float bound = demands.size();								// granica zeby nie przekraczac indeksu
 		int wybor = getIntRandom(bound);							// wybieram demand
 		
 		System.out.println("Wybieram Dem: "+wybor);
@@ -188,7 +225,7 @@ public class Wyzarzanie {
 		koszt = kosztInstalacji + kosztUzycia;
 		wynik = profit - koszt;
 		
-		System.out.println("Funkcja kosztu: "+wynik);
+//		System.out.println("Funkcja kosztu: "+wynik);
 		return wynik;
 	}
 
@@ -197,16 +234,20 @@ public class Wyzarzanie {
 		List<Edge> nowaSciezka = new LinkedList<Edge>() ;
 			
 		for (Demand d: demands) {
-			nowaSciezka = graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands,maxTransit);
+			d.setCzyRealizowany(true);
+			System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex()+" "+d.getCzyRealizowany());
+			nowaSciezka = graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands, maxTransit);
+			
+//			for (Edge e: nowaSciezka)
+//				System.out.println("Sciezka: "+e.getStartVertex()+" "+e.getEndVertex());
+			
 			ustawSciezke(d, nowaSciezka);
+			
+			
 		}
 		
-/*		if (nowaSciezka != null) {
-			d.setEdgeList(nowaSciezka);
-
-			for (Edge x: d.getEdgeList()) {
-				System.out.println("Demand: "+d.getStartVertex()+" "+d.getEndVertex()+". Trasa: "+x.getStartVertex()+" "+x.getEndVertex());
-			}*/
+		System.out.println();
+		System.out.println();
 	}
 }
 

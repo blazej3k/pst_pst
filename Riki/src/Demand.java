@@ -21,7 +21,7 @@ public class Demand {
 		this.demandVal = demandVal;
 		this.demandProfit = demandProfit;
 		
-		System.out.println("Tworze demand");
+//		System.out.println("Tworze demand");
 		setCzyRealizowany(true);
 	}
 	
