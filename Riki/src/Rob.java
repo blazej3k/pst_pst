@@ -87,7 +87,7 @@ public class Rob {
 				System.out
 				.println("h [temperatura] [max_liczba_iteracji] [liczba_przebiegow] [wejœciowy_plik_dat]");
 
-				temperatura = 10f;
+				temperatura = 50f;
 				maxIter = 50;
 				maxPrzebieg = 1;
 				//sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";

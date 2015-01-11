@@ -91,23 +91,30 @@ public class Wyzarzanie {
 
 
 				if (delta < 0) {										// jesli nowe gorsze, maksymalizuje f kosztu, przywroc stara trase;
-//					ustawSciezke(dem, tempEdgeList);
-					dem.setCzyRealizowany(tempCzyRealizowany);
-					dem.setEdgeList(tempEdgeList);						// przy przywracaniu musi miec mozliwosc ustawienia z powrotem NULL-a
-					System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
-
-				}	
-				else if (getFloatRandom() <= Math.exp(-(delta/temperatura))) {	// metropolis test - chuk wie cio, Pjura³ke tak ka¿e, jesli on true, to tez przywroc stara sciezke
-//					ustawSciezke(dem, tempEdgeList);							// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
-					dem.setCzyRealizowany(tempCzyRealizowany);
-					dem.setEdgeList(tempEdgeList);
-//					System.out.println("¯ar!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-					ileZaru++;
+					if (getFloatRandom() <= Math.exp(-(delta/temperatura))) {	// metropolis test - chuk wie cio, Pjura³ke tak ka¿e, jesli on true, to tez przywroc stara sciezke
+//						//					ustawSciezke(dem, tempEdgeList);							// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
+//						dem.setCzyRealizowany(tempCzyRealizowany);
+//						dem.setEdgeList(tempEdgeList);
+											System.out.println("¯ar!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+						sKosztX = sKosztY;
+						ileZaru++;
+					}
+					else {
+						//					ustawSciezke(dem, tempEdgeList);
+						dem.setCzyRealizowany(tempCzyRealizowany);
+						dem.setEdgeList(tempEdgeList);						// przy przywracaniu musi miec mozliwosc ustawienia z powrotem NULL-a
+						System.out.println("KosztY="+sKosztY+" KosztX="+sKosztX);
+					}
 				}
 				else {
 					sKosztX = sKosztY;												// jeœli delta > 0, czyli nowe jest lepsze to zachowaj nowa trase (nie przywracaj starej) i aktualizuj funkcje kosztu
 					System.out.println("Mam lepsza opcje, KosztX="+sKosztX+", KosztY="+sKosztY);
 				}
+
+				
+				
+				
+				
 				temperatura *= alfa;			// chlodzenie
 				count++;
 			}
