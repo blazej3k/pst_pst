@@ -195,12 +195,20 @@ public class Graf {
 		// zliczenie unikalnych wezlow tranzytowych wykorzystywanych przez inne
 		// demandy
 		for (Demand d : demands) {
-			if (!d.equals(currentDemand) || !d.getCzyRealizowany()) {
+			
+			if (!d.equals(currentDemand) && !d.getCzyRealizowany()) {
+				
 				if (d.getTransitNodes() != null)
+				{
+					System.out.println("demand " + d.getStartVertex() + "   " + d.getEndVertex());
 					wezlyTranzytowe.addAll(d.getTransitNodes());
+				}
 			}
 		}
-
+		System.out.println("aktualny " + aktualnyDemand);
+		System.out.println("wezly tranzytowe pozostalych dem");
+		for (String s: wezlyTranzytowe)
+			System.out.println(s);
 		visitedNodes.add(startVertex);
 		stack.push(startVertex);
 
@@ -212,13 +220,13 @@ public class Graf {
 		while (visitedNodes.size() <= graf.vertexSet().size()
 				&& !currentNode.equals(endVertex)) {
 
-			// System.out.println("current node " + currentNode);
+			 System.out.println("current node " + currentNode);
 			List<String> notVisitedNeighbors = znajdzNieodwiedzonychSasiadow(
 					graf, currentNode, visitedNodes, wezlyTranzytoweNowe,
 					maxTransit);
 			if (notVisitedNeighbors.size() > 0) {
 				String neighborNode = wybierzLosowegoSasiada(notVisitedNeighbors);
-				// System.out.println("neighbor node " + neighborNode);
+				System.out.println("neighbor node " + neighborNode);
 				visitedNodes.add(neighborNode);
 				stack.push(neighborNode);
 				currentNode = neighborNode;
@@ -226,7 +234,7 @@ public class Graf {
 					wezlyTranzytoweNowe.add(neighborNode);
 
 			} else {
-				// System.out.println("nie ma sasiadow");
+				System.out.println("nie ma sasiadow");
 				stack.pop();
 				if (currentNode.startsWith("T")
 						&& !wezlyTranzytowe.contains(currentNode))
@@ -287,15 +295,19 @@ public class Graf {
 		if (usedTransits.size() == maxTransits) {
 			for (int i = 0; i < sasiedzi.size(); i++) {
 				String sasiad = sasiedzi.get(i);
-				if (!usedTransits.contains(sasiad))
+				if (sasiad.startsWith("T") && !usedTransits.contains(sasiad))
+				{
+					System.out.println("R " + sasiad);
 					sasiedzi.remove(i);
+					
+				}
 			}
 		}
 
-		/*
-		 * System.out.println("nieodwiedzeni sasiedzi"); for (String s :
-		 * sasiedzi) System.out.println(s);
-		 */
+		
+		 System.out.println("nieodwiedzeni sasiedzi"); for (String s :
+		 sasiedzi) System.out.println(s);
+		 
 		return sasiedzi;
 	}
 

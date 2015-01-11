@@ -132,7 +132,7 @@ public class Demand {
 		this.czyRealizowany = czyRealizowany;
 		
 		if (!czyRealizowany)
-			this.clearTransitNodes();
+			this.transitNodes = null;
 	}
 	
 	
