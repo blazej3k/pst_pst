@@ -86,7 +86,7 @@ public class Wyzarzanie {
 				if(dem.getCzyRealizowany()) {
 					// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
 					if (tryb)
-					nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);	
+						nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);	
 					else 
 						nowaSciezka = graf.znajdzNajtanszaSciezke(wybor, maxTransit, simpleGraph, edges, demands);
 					ustawSciezke(dem, nowaSciezka);
@@ -251,14 +251,18 @@ public class Wyzarzanie {
 	public void rozwiazanieInicjalne() {
 		System.out.println("Inicjalne: ");
 		List<Edge> nowaSciezka = new LinkedList<Edge>() ;
-			
-		for (Demand d: demands) {
+		
+		for (Demand d : demands) {
 			d.setCzyRealizowany(true);
-			
+			d.setEdgeList(null);
+			d.clearTransitNodes();
+		}
+		
+		for (Demand d: demands) {	
 			try {
 				nowaSciezka = graf.znajdzNajkrotszaSciezke(demands.indexOf(d), simpleGraph, edges, demands, maxTransit);
 			} catch (NullPointerException e) {
-				System.out.println("Graf niespojnym, brak sciezki dla "+d.getStartVertex()+" "+d.getEndVertex());;
+				System.out.println("Graf niespojny, brak sciezki dla "+d.getStartVertex()+" "+d.getEndVertex());;
 			}
 			
 			ustawSciezke(d, nowaSciezka);

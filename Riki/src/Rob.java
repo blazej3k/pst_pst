@@ -106,7 +106,7 @@ public class Rob {
 				.println("h [temperatura] [max_liczba_iteracji] [liczba_przebiegow] [wejœciowy_plik_dat]");
 
 				temperatura = 1000f;
-				maxIter = 50000;
+				maxIter = 200;
 				maxPrzebieg = 5;
 				//sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";
 //				return;
