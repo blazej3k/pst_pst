@@ -30,6 +30,7 @@ public class Wyzarzanie {
 		this.orygTemp = orygTemp;
 		this.maxIter = maxIter;
 
+
 		System.out.println("Wyzarzanie.");
 		System.out.println("Demandow: "+demands.size());
 		System.out.println("Krawedzi: "+edges.size());

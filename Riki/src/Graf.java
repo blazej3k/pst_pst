@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 
@@ -12,7 +13,9 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KShortestPaths;
 import org.jgrapht.generate.RandomGraphGenerator;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
 public class Graf {
 
@@ -24,6 +27,8 @@ public class Graf {
 	private int numOfClients;
 	private int numOfTransits;
 	private int numOfEdges;
+	
+	private TreeSet<String> wezlyTranzytowe;
 
 	public Graf(int numOfClients, int numOfTransits, double percent) {
 		this.numOfClients = numOfClients;
@@ -107,7 +112,7 @@ public class Graf {
 
 			for (DefaultEdge e : lst.getEdgeList())
 				sciezki.add(e.toString()); // troche wygodniejsza lista i tak
-											// dupa.
+			// dupa.
 
 			// sciezki.add(lst.getEdgeList().toString());
 		}
@@ -115,7 +120,7 @@ public class Graf {
 		return sciezki;
 	}
 
-	//jesli nie moze znalezc sciezki rzuca nullPointerException
+	// jesli nie moze znalezc sciezki rzuca nullPointerException
 	public List<Edge> znajdzNajkrotszaSciezke(int aktualnyDemand,
 			SimpleGraph<String, DefaultEdge> graf, List<Edge> edges,
 			List<Demand> demands, int maxTransit) throws NullPointerException {
@@ -123,24 +128,43 @@ public class Graf {
 		String startVertex = currentDemand.getStartVertex();
 		String endVertex = currentDemand.getEndVertex();
 
-		TreeSet<String> wezlyTranzytowe = new TreeSet<>();
 		DijkstraShortestPath<String, DefaultEdge> path = new DijkstraShortestPath<String, DefaultEdge>(
 				graf, startVertex, endVertex);
-		GraphPath<String, DefaultEdge> sciezkaOdDo = path.getPath();															// sciezki
+		GraphPath<String, DefaultEdge> sciezkaOdDo = path.getPath(); // sciezki
 
-//		System.out.println("Szukam najkrótszej.");
+		// System.out.println("Szukam najkrótszej.");
 		if (sciezkaOdDo == null)
 			throw new NullPointerException();
 
 		// zliczenie unikalnych wezlow tranzytowych wykorzystywanych przez inne
 		// demandy
+		wezlyTranzytowe = wezlyTranzytowe(demands,
+				aktualnyDemand);
+
+		List<Edge> sciezka = zbudujSciezke(wezlyTranzytowe, sciezkaOdDo, edges);
+
+		//System.out.println("SIZE " + wezlyTranzytowe.size());
+		if (wezlyTranzytowe.size() > maxTransit)
+			return null;
+
+		return sciezka;
+
+	}
+
+	private TreeSet<String> wezlyTranzytowe(List<Demand> demands,
+			int currentDemand) {
+		TreeSet<String> wezlyTranzytowe = new TreeSet<>();
 		for (Demand d : demands) {
 			if (!d.equals(currentDemand)) {
 				if (d.getTransitNodes() != null)
 					wezlyTranzytowe.addAll(d.getTransitNodes());
 			}
 		}
+		return wezlyTranzytowe;
+	}
 
+	private List<Edge> zbudujSciezke(TreeSet<String> wezlyTranzytowe,
+			GraphPath<String, DefaultEdge> sciezkaOdDo, List<Edge> edges) {
 		List<Edge> sciezka = new ArrayList<>();
 		// System.out.println("Shortest path:");
 		for (DefaultEdge e : sciezkaOdDo.getEdgeList()) {
@@ -165,17 +189,134 @@ public class Graf {
 				wezlyTranzytowe.add(wezelB);
 
 		}
-//		System.out.println("SIZE: " + wezlyTranzytowe.size());
-		for (String transit : wezlyTranzytowe)
-//			System.out.println(transit);
-
-//		System.out.println("MAX: " + maxTransit);
-
-		if (wezlyTranzytowe.size() > maxTransit)
-			return null;
-
 		return sciezka;
+	}
 
+	private List<Edge> zbudujSciezkeWagowa(TreeSet<String> wezlyTranzytowe,
+			GraphPath<String, DefaultWeightedEdge> sciezkaOdDo, List<Edge> edges) {
+		List<Edge> sciezka = new ArrayList<>();
+		// System.out.println("Shortest path:");
+		for (DefaultWeightedEdge e : sciezkaOdDo.getEdgeList()) {
+			String x = e.toString();
+
+			x = x.replace("(", "");
+			x = x.replace(")", ""); // usuniecie nawiasow
+			String[] krawedz = x.split(":");
+
+			String wezelA = krawedz[0].trim();
+			String wezelB = krawedz[1].trim();
+
+			// System.out.println(wezelA + "  " + wezelB);
+			Edge edge = new Edge(wezelA, wezelB);
+			int index = edges.indexOf(edge);
+			// System.out.println(index);
+			sciezka.add(edges.get(index));
+
+			if (wezelA.startsWith("T"))
+				wezlyTranzytowe.add(wezelA);
+			if (wezelB.startsWith("T"))
+				wezlyTranzytowe.add(wezelB);
+
+		}
+		return sciezka;
+	}
+
+	public List<Edge> znajdzNajtanszaSciezke(int aktualnyDemand,
+			int maxTransit, SimpleGraph<String, DefaultEdge> graf,
+			List<Edge> edges, List<Demand> demands) {
+
+		String startVertex = demands.get(aktualnyDemand).getStartVertex();
+		String endVertex = demands.get(aktualnyDemand).getEndVertex();
+		SimpleWeightedGraph<String, DefaultWeightedEdge> grafWazony = stworzGrafWazony(
+				graf, edges, demands, aktualnyDemand);
+
+		int proba = 0;
+		while (proba < 10) {
+			grafWazony = dodajWagi(grafWazony, edges, demands, aktualnyDemand);
+
+			DijkstraShortestPath<String, DefaultWeightedEdge> path = new DijkstraShortestPath<String, DefaultWeightedEdge>(
+					grafWazony, startVertex, endVertex);
+			GraphPath<String, DefaultWeightedEdge> sciezkaOdDo = path.getPath();
+
+			// System.out.println("Szukam najkrótszej.");
+			if (sciezkaOdDo == null)
+				return null;
+
+			// zliczenie unikalnych wezlow tranzytowych wykorzystywanych przez
+			// inne demandy
+			wezlyTranzytowe = wezlyTranzytowe(demands,
+					aktualnyDemand);
+
+			List<Edge> sciezka = zbudujSciezkeWagowa(wezlyTranzytowe,
+					sciezkaOdDo, edges);
+
+			//System.out.println("SIZE " + wezlyTranzytowe.size());
+			if (wezlyTranzytowe.size() <= maxTransit)
+				return sciezka;
+			
+			proba++;
+			
+		}
+		return null;
+	}
+
+	private SimpleWeightedGraph<String, DefaultWeightedEdge> stworzGrafWazony(
+			SimpleGraph<String, DefaultEdge> graf, List<Edge> edges,
+			List<Demand> demands, int aktualnyDemand) {
+		SimpleWeightedGraph<String, DefaultWeightedEdge> grafWazony = new SimpleWeightedGraph<>(
+				DefaultWeightedEdge.class);
+		Set<String> wierzcholki = graf.vertexSet();
+		Iterator<String> iterator = wierzcholki.iterator();
+
+		while (iterator.hasNext())
+			grafWazony.addVertex(iterator.next());
+
+		for (Edge edge : edges) {
+			grafWazony.addEdge(edge.getStartVertex(), edge.getEndVertex());
+		}
+		return grafWazony;
+	}
+
+	private SimpleWeightedGraph<String, DefaultWeightedEdge> dodajWagi(
+			SimpleWeightedGraph<String, DefaultWeightedEdge> grafWazony,
+			List<Edge> edges, List<Demand> demands, int aktualnyDemand) {
+		for (Edge edge : edges) {
+
+			int instal = edge.getInstallationCost();
+			/*System.out.println(czyKrawedzZainstalowana(edge, aktualnyDemand,
+					demands));*/
+			if (czyKrawedzZainstalowana(edge, aktualnyDemand, demands))
+				instal = 0;
+			double waga = instal + edge.getUnitCost()
+					* demands.get(aktualnyDemand).getDemandVal();
+
+			//System.out.println("waga " + waga);
+
+			Random random = new Random();
+			float rand = random.nextFloat();
+			waga = waga * rand;
+
+			//System.out.println("waga " + waga);
+
+			DefaultWeightedEdge krawedz = grafWazony.getEdge(
+					edge.getStartVertex(), edge.getEndVertex());
+			grafWazony.setEdgeWeight(krawedz, waga);
+
+		}
+		return grafWazony;
+	}
+
+	private boolean czyKrawedzZainstalowana(Edge edge, int aktualnyDemand,
+			List<Demand> demands) {
+		for (int i = 0; i < demands.size(); i++) {
+			if (i != aktualnyDemand) {
+				if (demands.get(i).getEdgeList() != null
+						&& demands.get(i).getEdgeList().contains(edge))
+					return true;
+
+			}
+		}
+		return false;
 	}
 
 	// jesli nie moze znalezc sciezki zwraca null
@@ -191,24 +332,24 @@ public class Graf {
 		Stack<String> stack = new Stack<>();
 		TreeSet<String> wezlyTranzytowe = new TreeSet<>();
 
-//		System.out.println("Szukam losowej.");
+		// System.out.println("Szukam losowej.");
 		// zliczenie unikalnych wezlow tranzytowych wykorzystywanych przez inne
 		// demandy
 		for (Demand d : demands) {
-			
+
 			if (!d.equals(currentDemand) && d.getCzyRealizowany()) {
-				
-				if (d.getTransitNodes() != null)
-				{
-//					System.out.println("demand " + d.getStartVertex() + "   " + d.getEndVertex());
+
+				if (d.getTransitNodes() != null) {
+					// System.out.println("demand " + d.getStartVertex() + "   "
+					// + d.getEndVertex());
 					wezlyTranzytowe.addAll(d.getTransitNodes());
 				}
 			}
 		}
-//		System.out.println("aktualny " + aktualnyDemand);
-//		System.out.println("wezly tranzytowe pozostalych dem");
-//		for (String s: wezlyTranzytowe)
-//			System.out.println(s);
+		// System.out.println("aktualny " + aktualnyDemand);
+		// System.out.println("wezly tranzytowe pozostalych dem");
+		// for (String s: wezlyTranzytowe)
+		// System.out.println(s);
 		visitedNodes.add(startVertex);
 		stack.push(startVertex);
 
@@ -220,13 +361,13 @@ public class Graf {
 		while (visitedNodes.size() <= graf.vertexSet().size()
 				&& !currentNode.equals(endVertex)) {
 
-//			 System.out.println("current node " + currentNode);
+			// System.out.println("current node " + currentNode);
 			List<String> notVisitedNeighbors = znajdzNieodwiedzonychSasiadow(
 					graf, currentNode, visitedNodes, wezlyTranzytoweNowe,
 					maxTransit);
 			if (notVisitedNeighbors.size() > 0) {
 				String neighborNode = wybierzLosowegoSasiada(notVisitedNeighbors);
-//				System.out.println("neighbor node " + neighborNode);
+				// System.out.println("neighbor node " + neighborNode);
 				visitedNodes.add(neighborNode);
 				stack.push(neighborNode);
 				currentNode = neighborNode;
@@ -234,14 +375,13 @@ public class Graf {
 					wezlyTranzytoweNowe.add(neighborNode);
 
 			} else {
-//				System.out.println("nie ma sasiadow");
+				// System.out.println("nie ma sasiadow");
 				stack.pop();
 				if (currentNode.startsWith("T")
 						&& !wezlyTranzytowe.contains(currentNode))
 					wezlyTranzytoweNowe.remove(currentNode);
-				if (stack.size() == 0)
-				{
-//					System.out.println("Nie mozna znalezc sciezki");
+				if (stack.size() == 0) {
+					System.out.println("Nie mozna znalezc sciezki");
 					return null;
 				}
 				currentNode = stack.peek();
@@ -252,7 +392,7 @@ public class Graf {
 		}
 
 		if (!currentNode.equals(endVertex)) {
-//			System.out.println("Nie mozna znalezc sciezki");
+			System.out.println("Nie mozna znalezc sciezki");
 			return null;
 		}
 
@@ -295,19 +435,17 @@ public class Graf {
 		if (usedTransits.size() == maxTransits) {
 			for (int i = 0; i < sasiedzi.size(); i++) {
 				String sasiad = sasiedzi.get(i);
-				if (sasiad.startsWith("T") && !usedTransits.contains(sasiad))
-				{
-//					System.out.println("R " + sasiad);
+				if (sasiad.startsWith("T") && !usedTransits.contains(sasiad)) {
+					// System.out.println("R " + sasiad);
 					sasiedzi.remove(i);
-					
+
 				}
 			}
 		}
 
-		
-//		 System.out.println("nieodwiedzeni sasiedzi"); 
-//		 for (String s : sasiedzi) System.out.println(s);
-		 
+		// System.out.println("nieodwiedzeni sasiedzi"); for (String s :
+		// sasiedzi) System.out.println(s);
+
 		return sasiedzi;
 	}
 
