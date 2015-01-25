@@ -20,7 +20,7 @@ public class Wyzarzanie {
 	private float orygTemp;
 	private float maxIter;
 
-	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit, float orygTemp, int maxIter, int maxPrzebieg) {
+	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit, float orygTemp, int maxIter, int maxPrzebieg, boolean tryb) {
 		this.demands = demands;
 		this.edges = edges;
 		this.simpleGraph = simpleGraph;
@@ -41,10 +41,10 @@ public class Wyzarzanie {
 		
 		wyniki = new LinkedList<Float>();
 		
-		heurystyka();
+		heurystyka(tryb);
 	}
 	
-	private void heurystyka() {
+	private void heurystyka(boolean tryb) {
 		float sKosztX=0, sKosztY=0;
 		Demand dem;
 		
@@ -84,7 +84,11 @@ public class Wyzarzanie {
 
 //				System.out.println("Wybra³em demand: "+dem.getStartVertex()+" "+dem.getEndVertex()+" "+dem.getCzyRealizowany());		
 				if(dem.getCzyRealizowany()) {
-					nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);			// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
+					// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
+					if (tryb)
+					nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);	
+					else 
+						nowaSciezka = graf.znajdzNajtanszaSciezke(wybor, maxTransit, simpleGraph, edges, demands);
 					ustawSciezke(dem, nowaSciezka);
 				}
 				
