@@ -18,6 +18,7 @@ public class Wyzarzanie {
 	private int maxPrzebieg;
 	private List<Float> wyniki;
 	private float orygTemp;
+	private float maxIter;
 
 	public Wyzarzanie(List<Demand> demands, List<Edge> edges, SimpleGraph<String, DefaultEdge> simpleGraph, Graf graf, int maxTransit, float orygTemp, int maxIter, int maxPrzebieg) {
 		this.demands = demands;
@@ -27,6 +28,7 @@ public class Wyzarzanie {
 		this.maxTransit = maxTransit;
 		this.maxPrzebieg = maxPrzebieg;
 		this.orygTemp = orygTemp;
+		this.maxIter = maxIter;
 
 		System.out.println("Wyzarzanie.");
 		System.out.println("Demandow: "+demands.size());
@@ -38,10 +40,10 @@ public class Wyzarzanie {
 		
 		wyniki = new LinkedList<Float>();
 		
-		heurystyka(orygTemp, maxIter);
+		heurystyka();
 	}
 	
-	private void heurystyka(float temperatura, int maxIter) {
+	private void heurystyka() {
 		float sKosztX=0, sKosztY=0;
 		Demand dem;
 		
@@ -49,7 +51,8 @@ public class Wyzarzanie {
 
 		int count=0;
 		float delta=0;
-		float alfa = 0.95f;				// funkcja chlodzenia, 
+		double alfa = 0.9;				// funkcja chlodzenia,
+		double temperatura = orygTemp;
 		int wybor=0;
 		int ilePrzebiegow=0;				// pomaga wyznaczyc optymalne wartosci temperatury i alfy.
 		int ileZaru=0;
@@ -57,13 +60,12 @@ public class Wyzarzanie {
 		List<Edge> nowaSciezka;
 		Boolean tempCzyRealizowany;
 		
-//		demands.remove(0);
+		float maxWynikIter=0, maxWynikTotal=0;
 		
 		while (ilePrzebiegow < maxPrzebieg) {					// kryterium stopu, do poszukiwania lepszych parametrów
 			count=0;											// przebiegi musza byc niezalezne, resetuj wszystko
 			ilePrzebiegow++;
 			
-			temperatura = orygTemp;
 			delta=0;
 			wybor=0;
 			ileZaru=0;
@@ -79,18 +81,18 @@ public class Wyzarzanie {
 				tempCzyRealizowany = dem.getCzyRealizowany();
 				setCzyRealizowac(wybor);
 
-				System.out.println("Wybra³em demand: "+dem.getStartVertex()+" "+dem.getEndVertex()+" "+dem.getCzyRealizowany());		
+//				System.out.println("Wybra³em demand: "+dem.getStartVertex()+" "+dem.getEndVertex()+" "+dem.getCzyRealizowany());		
 				if(dem.getCzyRealizowany()) {
 					nowaSciezka = graf.znajdzLosowaSciezke(wybor, maxTransit, simpleGraph, edges, demands);			// losowa sciezka, = otoczenie punktu (rozwiazania) nalezace do zbioru rozwiazan
 					ustawSciezke(dem, nowaSciezka);
 				}
 				
 				sKosztY = sumFunkcjaKosztu();
-				System.out.println(sKosztY);
+//				System.out.println(sKosztY);
 				delta = sKosztY - sKosztX;
 
 
-				if (delta < 0) {										// jesli nowe gorsze, maksymalizuje f kosztu, przywroc stara trase;
+/*				if (delta < 0) {										// jesli nowe gorsze, maksymalizuje f kosztu, przywroc stara trase;
 					if (getFloatRandom() <= Math.exp(-(delta/temperatura))) {	// metropolis test - chuk wie cio, Pjura³ke tak ka¿e, jesli on true, to tez przywroc stara sciezke
 //						//					ustawSciezke(dem, tempEdgeList);							// jesli wypadnie float > exp, to przyjmij gorsze, skoro <= to przywroc stare lepsze
 //						dem.setCzyRealizowany(tempCzyRealizowany);
@@ -109,17 +111,30 @@ public class Wyzarzanie {
 				else {
 					sKosztX = sKosztY;												// jeœli delta > 0, czyli nowe jest lepsze to zachowaj nowa trase (nie przywracaj starej) i aktualizuj funkcje kosztu
 					System.out.println("Mam lepsza opcje, KosztX="+sKosztX+", KosztY="+sKosztY);
+				}*/
+				
+				if (delta >= 0)
+				{
+					sKosztX = sKosztY;
+					if (sKosztX > maxWynikIter)
+						maxWynikIter = sKosztX;
 				}
-
-				
-				
-				
-				
-				temperatura *= alfa;			// chlodzenie
+				else if (getFloatRandom() < Math.exp(-(delta/temperatura))) {
+					ileZaru++;
+					sKosztX = sKosztY;
+				}
+				else
+				{
+					dem.setCzyRealizowany(tempCzyRealizowany);
+					dem.setEdgeList(tempEdgeList);	
+				}
+							
 				count++;
 			}
-			sKosztX = sumFunkcjaKosztu();			// przeliczanie kontrolne, sprawdza czy sie parametry zachowuja
-			wyniki.add(sKosztX);
+			temperatura *= alfa;	// chlodzenie
+//			System.out.println(" NOWA TEMPERATURA TO: "+temperatura);
+//			sKosztX = sumFunkcjaKosztu();			// przeliczanie kontrolne, sprawdza czy sie parametry zachowuja
+			wyniki.add(maxWynikIter);
 			
 			System.out.println();
 			System.out.println("Demandy: ");
@@ -136,8 +151,12 @@ public class Wyzarzanie {
 				
 				System.out.println("Trasa: "+trasa);
 			}
+			
+			if(maxWynikIter > maxWynikTotal)
+				maxWynikTotal = maxWynikIter;
+			
 			System.out.println();
-			System.out.println("Funkcja kosztu przebiegu "+ilePrzebiegow+" wynosi "+sKosztX+" Zar pracowal "+ileZaru+" razy.");
+			System.out.println("Przebieg: "+ilePrzebiegow+". Najwieksza osi¹gnieta wartosc: "+maxWynikIter);
 			System.out.println();
 			System.out.println();
 			System.out.println();
@@ -150,7 +169,8 @@ public class Wyzarzanie {
 		suma /= wyniki.size(); // usrednienie wyniku
 		
 		System.out.println();
-		System.out.println("Ostateczna funkcja kosztu: "+ suma +" znaleziona w "+ilePrzebiegow+" przebiegow,"+" po "+count+" iteracji.");
+		System.out.println("Ostateczna, usredniona wartosc funkcja kosztu: "+ suma +" znaleziona w "+ilePrzebiegow+" przebiegow,"+" po "+count+" iteracji.");
+		System.out.println("Najwiekszy osi¹gniety wynik: "+maxWynikTotal);
 
 	}
 
@@ -159,7 +179,7 @@ public class Wyzarzanie {
 		if (nowaSciezka != null)
 			d.setEdgeList(nowaSciezka);
 		else {
-			System.out.println("Wy³¹czam zapotrzebowanie: "+ d.getStartVertex()+" "+d.getEndVertex());
+//			System.out.println("Wy³¹czam zapotrzebowanie: "+ d.getStartVertex()+" "+d.getEndVertex());
 			d.setCzyRealizowany(false);
 		}
 		return null;
@@ -185,8 +205,8 @@ public class Wyzarzanie {
 		return new Random().nextInt((int) bound);
 	}
 	
-	private float getFloatRandom() {
-		return new Random().nextFloat();	
+	private double getFloatRandom() {
+		return new Random().nextDouble();	
 	}
 	
 	private float sumFunkcjaKosztu() {

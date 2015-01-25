@@ -13,7 +13,7 @@ public class Rob {
 	private static int transitsLimit;
 	private static int numOfPaths;
 	private static String sciezka = "res/";
-	private static String nazwaPlikuOdczytu = "nt1.dat";
+	private static String nazwaPlikuOdczytu = "nt3.dat";
 	private static String nazwaPlikuZapisu = "ampl.dat";
 	private static String sciezkaOdczytu = sciezka+nazwaPlikuOdczytu;
 	private static String sciezkaZapisu = sciezka+nazwaPlikuZapisu;
@@ -87,9 +87,9 @@ public class Rob {
 				System.out
 				.println("h [temperatura] [max_liczba_iteracji] [liczba_przebiegow] [wejœciowy_plik_dat]");
 
-				temperatura = 50f;
-				maxIter = 50;
-				maxPrzebieg = 1;
+				temperatura = 1000f;
+				maxIter = 50000;
+				maxPrzebieg = 5;
 				//sciezkaOdczytu = "C:\\Users\\Teodor\\Desktop\\nt3.dat";
 //				return;
 			}

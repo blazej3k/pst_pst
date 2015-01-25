@@ -50,7 +50,7 @@ public class Demand {
 		this.edgeList = edgeList;
 		
 		if (edgeList != null) {
-			System.out.println("Buduje tranzyty.");
+//			System.out.println("Buduje tranzyty.");
 			transitNodes = new TreeSet<String>();
 			
 			String w1="", w2="";
@@ -63,8 +63,8 @@ public class Demand {
 				if (w2.startsWith("T"))
 					transitNodes.add(w2);
 			}
-			for (String t: transitNodes)
-				System.out.println("Tranzyty: "+t);
+//			for (String t: transitNodes)
+//				System.out.println("Tranzyty: "+t);
 		}
 		
 
